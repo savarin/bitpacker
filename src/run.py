@@ -81,20 +81,43 @@ def convert_collection_to_non_pawn_positions(
 def convert_castling_availability(
     castling_availability: str, king_positions: List[int]
 ) -> List[Tuple[int, int]]:
+    if castling_availability == "-":
+        return []
+
     rook_index: Dict[str, int] = {
         "q": PIECES.index("r") + 1,
         "k": PIECES.index("r"),
         "Q": PIECES.index("R") + 1,
         "K": PIECES.index("R"),
     }
+
     replace: List[Tuple[int, int]] = []
 
-    if castling_availability != "-":
-        for piece in castling_availability:
-            is_black_piece = piece.isupper()
-            replace.append((rook_index[piece], king_positions[int(is_black_piece)]))
+    for piece in castling_availability:
+        is_black_piece = piece.isupper()
+        replace.append((rook_index[piece], king_positions[int(is_black_piece)]))
 
     return replace
+
+
+def convert_en_passant_target(
+    en_passant_target: str, king_positions: List[int]
+) -> List[Tuple[int, int]]:
+    if en_passant_target == "-":
+        return []
+
+    assert en_passant_target[0] in FILES and en_passant_target[1] in "36"
+
+    is_black_piece = en_passant_target[1] == "6"
+
+    if en_passant_target[1] == "3":
+        index = PIECES.index("p")
+    elif en_passant_target[1] == "6":
+        index = PIECES.index("P")
+
+    return [
+        (index + FILES.index(en_passant_target[0]), king_positions[int(is_black_piece)])
+    ]
 
 
 def convert(

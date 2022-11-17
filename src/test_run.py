@@ -1,4 +1,5 @@
 import chess
+import pytest
 
 import run
 
@@ -43,6 +44,31 @@ def test_convert_castling_availability() -> None:
     run.convert_castling_availability("k", king_positions) == [(4, 4)]
     run.convert_castling_availability("q", king_positions) == [(5, 4)]
     run.convert_castling_availability("-", king_positions) == []
+
+
+def test_convert_en_passant_target() -> None:
+    king_positions = [4, 60]
+
+    assert run.convert_en_passant_target("a3", king_positions) == [(16, 4)]
+    assert run.convert_en_passant_target("b3", king_positions) == [(17, 4)]
+    assert run.convert_en_passant_target("c3", king_positions) == [(18, 4)]
+    assert run.convert_en_passant_target("d3", king_positions) == [(19, 4)]
+    assert run.convert_en_passant_target("e3", king_positions) == [(20, 4)]
+    assert run.convert_en_passant_target("f3", king_positions) == [(21, 4)]
+    assert run.convert_en_passant_target("g3", king_positions) == [(22, 4)]
+    assert run.convert_en_passant_target("h3", king_positions) == [(23, 4)]
+    assert run.convert_en_passant_target("a6", king_positions) == [(24, 60)]
+    assert run.convert_en_passant_target("b6", king_positions) == [(25, 60)]
+    assert run.convert_en_passant_target("c6", king_positions) == [(26, 60)]
+    assert run.convert_en_passant_target("d6", king_positions) == [(27, 60)]
+    assert run.convert_en_passant_target("e6", king_positions) == [(28, 60)]
+    assert run.convert_en_passant_target("f6", king_positions) == [(29, 60)]
+    assert run.convert_en_passant_target("g6", king_positions) == [(30, 60)]
+    assert run.convert_en_passant_target("h6", king_positions) == [(31, 60)]
+    assert run.convert_en_passant_target("-", king_positions) == []
+
+    with pytest.raises(AssertionError):
+        run.convert_en_passant_target("a1", king_positions)
 
 
 def test_convert_starting_board() -> None:
