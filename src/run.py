@@ -8,7 +8,9 @@ FILES = "abcdefgh"
 PIECES = "kKqQr.R.b.B.n.N.p.......P......."
 
 
-def convert(board: chess.Board) -> List[Optional[int]]:
+def convert(
+    board: chess.Board,
+) -> Tuple[List[Optional[int]], DefaultDict[str, List[Tuple[int, str]]]]:
     collection: DefaultDict[str, List[Tuple[int, str]]] = collections.defaultdict(list)
     excess: DefaultDict[str, List[Tuple[int, str]]] = collections.defaultdict(list)
 
@@ -66,4 +68,4 @@ def convert(board: chess.Board) -> List[Optional[int]]:
 
                     excess[non_pawn_piece].append(non_pawn_position)
 
-    return positions
+    return positions, excess

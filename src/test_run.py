@@ -5,8 +5,9 @@ import run
 
 def test_convert_starting_board() -> None:
     board = chess.Board()
+    positions, excess = run.convert(board)
 
-    assert run.convert(board) == [
+    assert positions == [
         4,
         60,
         3,
@@ -41,6 +42,8 @@ def test_convert_starting_board() -> None:
         None,
     ]
 
+    assert len(excess) == 0
+
 
 def test_convert_with_capture() -> None:
     board = chess.Board()
@@ -50,8 +53,9 @@ def test_convert_with_capture() -> None:
     board.push_san("a5")
     board.push_san("Qxh7")
     board.push_san("Rxh7")
+    positions, excess = run.convert(board)
 
-    assert run.convert(board) == [
+    assert positions == [
         4,
         60,
         3,
@@ -86,6 +90,8 @@ def test_convert_with_capture() -> None:
         None,
     ]
 
+    assert len(excess) == 0
+
 
 def test_convert_with_promotion() -> None:
     board = chess.Board()
@@ -98,8 +104,9 @@ def test_convert_with_promotion() -> None:
     board.push_san("bxa7")
     board.push_san("h4")
     board.push_san("axb8=Q")
+    positions, excess = run.convert(board)
 
-    assert run.convert(board) == [
+    assert positions == [
         4,
         60,
         3,
@@ -133,3 +140,6 @@ def test_convert_with_promotion() -> None:
         None,
         None,
     ]
+
+    assert len(excess) == 1
+    assert excess["Q"] == [(59, "d8")]
