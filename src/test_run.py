@@ -85,3 +85,51 @@ def test_convert_with_capture() -> None:
         None,
         None,
     ]
+
+
+def test_convert_with_promotion() -> None:
+    board = chess.Board()
+    board.push_san("d4")
+    board.push_san("c5")
+    board.push_san("dxc5")
+    board.push_san("b6")
+    board.push_san("cxb6")
+    board.push_san("h5")
+    board.push_san("bxa7")
+    board.push_san("h4")
+    board.push_san("axb8=Q")
+
+    assert run.convert(board) == [
+        4,
+        60,
+        3,
+        1,
+        0,
+        7,
+        56,
+        63,
+        2,
+        5,
+        58,
+        61,
+        6,
+        60,
+        57,
+        62,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    ]

@@ -39,26 +39,31 @@ def convert(board: chess.Board) -> List[Optional[int]]:
         elif non_pawn_piece in {"q", "Q"}:
             if non_pawn_positions is None:
                 positions[non_pawn_index] = king_positions[int(is_white_piece)]
-                continue
 
-            for i, non_pawn_position in enumerate(non_pawn_positions):
-                if i < 1:
-                    positions[non_pawn_index] = non_pawn_position[0]
-                    continue
+            else:
+                for i, non_pawn_position in enumerate(non_pawn_positions):
+                    if i < 1:
+                        positions[non_pawn_index] = non_pawn_position[0]
+                        continue
 
-                excess[non_pawn_piece].append(non_pawn_position)
+                    excess[non_pawn_piece].append(non_pawn_position)
 
         elif non_pawn_piece in {"r", "b", "n", "R", "B", "N"}:
             if non_pawn_positions is None:
                 positions[non_pawn_index] = king_positions[int(is_white_piece)]
                 positions[non_pawn_index + 1] = king_positions[int(is_white_piece)]
+
+            elif len(non_pawn_positions) == 1:
+                positions[non_pawn_index] = non_pawn_positions[0][0]
+                positions[non_pawn_index + 1] = king_positions[int(is_white_piece)]
                 continue
 
-            for i, non_pawn_position in enumerate(non_pawn_positions):
-                if i < 2:
-                    positions[non_pawn_index + i] = non_pawn_position[0]
-                    continue
+            else:
+                for i, non_pawn_position in enumerate(non_pawn_positions):
+                    if i < 2:
+                        positions[non_pawn_index + i] = non_pawn_position[0]
+                        continue
 
-                excess[non_pawn_piece].append(non_pawn_position)
+                    excess[non_pawn_piece].append(non_pawn_position)
 
     return positions
