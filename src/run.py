@@ -1,4 +1,4 @@
-from typing import DefaultDict, List, Optional, Tuple
+from typing import DefaultDict, Dict, List, Optional, Tuple
 import collections
 
 import chess
@@ -26,7 +26,7 @@ def convert_board_to_collection(
     return collection
 
 
-def convert_collection_to_positions(
+def convert_collection_to_non_pawn_positions(
     collection: DefaultDict[str, List[Tuple[int, str]]]
 ) -> Tuple[List[Optional[int]], DefaultDict[str, List[Tuple[int, str]]]]:
     positions: List[Optional[int]] = [None] * 32
@@ -78,8 +78,27 @@ def convert_collection_to_positions(
     return positions, excess
 
 
+def convert_castling_availability(
+    castling_availability: str, king_positions: List[int]
+) -> List[Tuple[int, int]]:
+    rook_index: Dict[str, int] = {
+        "q": PIECES.index("r") + 1,
+        "k": PIECES.index("r"),
+        "Q": PIECES.index("R") + 1,
+        "K": PIECES.index("R"),
+    }
+    replace: List[Tuple[int, int]] = []
+
+    if castling_availability != "-":
+        for piece in castling_availability:
+            is_black_piece = piece.isupper()
+            replace.append((rook_index[piece], king_positions[int(is_black_piece)]))
+
+    return replace
+
+
 def convert(
     board: chess.Board,
 ) -> Tuple[List[Optional[int]], DefaultDict[str, List[Tuple[int, str]]]]:
     collection = convert_board_to_collection(board)
-    return convert_collection_to_positions(collection)
+    return convert_collection_to_non_pawn_positions(collection)
