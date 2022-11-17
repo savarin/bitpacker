@@ -8,12 +8,10 @@ FILES = "abcdefgh"
 PIECES = "kqr.b.n.p.......KQR.B.N.P......."
 
 
-if __name__ == "__main__":
+def convert(board: chess.Board) -> List[Optional[int]]:
     collection: DefaultDict[str, List[Tuple[int, str]]] = collections.defaultdict(list)
     excess = []
     positions: List[Optional[int]] = [None] * 32
-
-    board = chess.Board()
 
     for i, pieces in enumerate(str(board).split("\n")):
         for j, piece in enumerate(pieces.split(" ")):
@@ -45,3 +43,5 @@ if __name__ == "__main__":
                     continue
 
                 excess.append((non_pawn_piece, non_pawn_position))
+
+    return positions
