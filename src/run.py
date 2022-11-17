@@ -5,13 +5,15 @@ import chess
 
 
 FILES = "abcdefgh"
-PIECES = "kqr.b.n.p.......KQR.B.N.P......."
+PIECES = "kKqQr.R.b.B.n.N.p.......P......."
 
 
 def convert(board: chess.Board) -> List[Optional[int]]:
     collection: DefaultDict[str, List[Tuple[int, str]]] = collections.defaultdict(list)
-    excess = []
+    excess: DefaultDict[str, List[Tuple[int, str]]] = collections.defaultdict(list)
+
     positions: List[Optional[int]] = [None] * 32
+    king_positions: List[Optional[int]] = [None, None]
 
     for i, pieces in enumerate(str(board).split("\n")):
         for j, piece in enumerate(pieces.split(" ")):
@@ -23,25 +25,40 @@ def convert(board: chess.Board) -> List[Optional[int]]:
 
             collection[piece].append((position_int, position_str))
 
-    for non_pawn_piece in ["k", "q", "r", "b", "n", "K", "Q", "R", "B", "N"]:
-        if non_pawn_piece not in collection:
-            continue
-
+    for non_pawn_piece in ["k", "K", "q", "Q", "r", "b", "n", "R", "B", "N"]:
         non_pawn_index = PIECES.index(non_pawn_piece)
 
-        if non_pawn_piece in {"k", "q", "K", "Q"}:
-            positions[non_pawn_index] = collection[non_pawn_piece][0][0]
+        non_pawn_positions = collection.get(non_pawn_piece, None)
+        is_white_piece = non_pawn_piece.islower()
 
-        elif non_pawn_piece in {"r", "b", "n", "R", "B", "N"}:
-            non_pawn_positions = collection[non_pawn_piece]
-            non_pawn_counter = 0
+        if non_pawn_piece in {"k", "K"}:
+            assert non_pawn_positions is not None
+            positions[non_pawn_index] = non_pawn_positions[0][0]
+            king_positions[["k", "K"].index(non_pawn_piece)] = non_pawn_positions[0][0]
 
-            for non_pawn_position in non_pawn_positions:
-                if non_pawn_counter < 2:
-                    positions[non_pawn_index + non_pawn_counter] = non_pawn_position[0]
-                    non_pawn_counter += 1
+        elif non_pawn_piece in {"q", "Q"}:
+            if non_pawn_positions is None:
+                positions[non_pawn_index] = king_positions[int(is_white_piece)]
+                continue
+
+            for i, non_pawn_position in enumerate(non_pawn_positions):
+                if i < 1:
+                    positions[non_pawn_index] = non_pawn_position[0]
                     continue
 
-                excess.append((non_pawn_piece, non_pawn_position))
+                excess[non_pawn_piece].append(non_pawn_position)
+
+        elif non_pawn_piece in {"r", "b", "n", "R", "B", "N"}:
+            if non_pawn_positions is None:
+                positions[non_pawn_index] = king_positions[int(is_white_piece)]
+                positions[non_pawn_index + 1] = king_positions[int(is_white_piece)]
+                continue
+
+            for i, non_pawn_position in enumerate(non_pawn_positions):
+                if i < 2:
+                    positions[non_pawn_index + i] = non_pawn_position[0]
+                    continue
+
+                excess[non_pawn_piece].append(non_pawn_position)
 
     return positions
