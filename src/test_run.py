@@ -75,24 +75,7 @@ def test_convert_starting_board() -> None:
     board = chess.Board()
     positions, excess = run.convert(board)
 
-    assert positions[:16] == [
-        4,
-        60,
-        3,
-        59,
-        0,
-        7,
-        56,
-        63,
-        2,
-        5,
-        58,
-        61,
-        1,
-        6,
-        57,
-        62,
-    ]
+    assert positions[:16] == [4, 60, 3, 59, 0, 7, 56, 63, 2, 5, 58, 61, 1, 6, 57, 62]
 
     assert len(excess) == 0
 
@@ -107,24 +90,7 @@ def test_convert_with_capture() -> None:
     board.push_san("Rxh7")
     positions, excess = run.convert(board)
 
-    assert positions[:16] == [
-        4,
-        60,
-        3,
-        4,
-        0,
-        15,
-        56,
-        63,
-        2,
-        5,
-        58,
-        61,
-        1,
-        6,
-        57,
-        62,
-    ]
+    assert positions[:16] == [4, 60, 60, 59, 0, 7, 55, 56, 2, 5, 58, 61, 1, 6, 57, 62]
 
     assert len(excess) == 0
 
@@ -142,24 +108,7 @@ def test_convert_with_promotion() -> None:
     board.push_san("axb8=Q")
     positions, excess = run.convert(board)
 
-    assert positions[:16] == [
-        4,
-        60,
-        3,
-        1,
-        0,
-        7,
-        56,
-        63,
-        2,
-        5,
-        58,
-        61,
-        6,
-        60,
-        57,
-        62,
-    ]
+    assert positions[:16] == [4, 60, 3, 59, 0, 7, 56, 63, 2, 5, 58, 61, 1, 6, 62, 4]
 
     assert len(excess) == 1
-    assert excess["Q"] == [(59, "d8")]
+    assert excess["Q"] == [(57, "b8")]

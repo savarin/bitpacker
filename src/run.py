@@ -5,7 +5,7 @@ import chess
 
 
 FILES = "abcdefgh"
-PIECES = "kKqQr.R.b.B.n.N.p.......P......."
+PIECES = "KkQqR.r.B.b.N.n.P.......p......."
 
 
 def convert_board_to_collection(
@@ -13,7 +13,7 @@ def convert_board_to_collection(
 ) -> DefaultDict[str, List[Tuple[int, str]]]:
     collection: DefaultDict[str, List[Tuple[int, str]]] = collections.defaultdict(list)
 
-    for i, pieces in enumerate(str(board).split("\n")):
+    for i, pieces in enumerate(str(board).split("\n")[::-1]):
         for j, piece in enumerate(pieces.split(" ")):
             if piece == ".":
                 continue
@@ -26,7 +26,7 @@ def convert_board_to_collection(
     return collection
 
 
-def convert_collection_to_non_pawn_positions(
+def convert_to_non_pawn_positions(
     collection: DefaultDict[str, List[Tuple[int, str]]]
 ) -> Tuple[List[Optional[int]], DefaultDict[str, List[Tuple[int, str]]]]:
     positions: List[Optional[int]] = [None] * 32
@@ -34,16 +34,16 @@ def convert_collection_to_non_pawn_positions(
 
     excess: DefaultDict[str, List[Tuple[int, str]]] = collections.defaultdict(list)
 
-    for non_pawn_piece in ["k", "K", "q", "Q", "r", "b", "n", "R", "B", "N"]:
+    for non_pawn_piece in ["K", "k", "Q", "q", "R", "B", "N", "r", "b", "n"]:
         non_pawn_index = PIECES.index(non_pawn_piece)
 
         non_pawn_positions = collection.get(non_pawn_piece, None)
-        is_white_piece = non_pawn_piece.islower()
+        is_white_piece = non_pawn_piece.isupper()
 
         if non_pawn_piece.lower() == "k":
             assert non_pawn_positions is not None
             positions[non_pawn_index] = non_pawn_positions[0][0]
-            king_positions[["k", "K"].index(non_pawn_piece)] = non_pawn_positions[0][0]
+            king_positions[["K", "k"].index(non_pawn_piece)] = non_pawn_positions[0][0]
 
         elif non_pawn_piece.lower() == "q":
             if non_pawn_positions is None:
@@ -94,7 +94,7 @@ def convert_castling_availability(
     replace: List[Tuple[int, int]] = []
 
     for piece in castling_availability:
-        is_black_piece = piece.isupper()
+        is_black_piece = piece.islower()
         replace.append((rook_index[piece], king_positions[int(is_black_piece)]))
 
     return replace
@@ -111,9 +111,9 @@ def convert_en_passant_target(
     is_black_piece = en_passant_target[1] == "6"
 
     if en_passant_target[1] == "3":
-        index = PIECES.index("p")
-    elif en_passant_target[1] == "6":
         index = PIECES.index("P")
+    elif en_passant_target[1] == "6":
+        index = PIECES.index("p")
 
     return [
         (index + FILES.index(en_passant_target[0]), king_positions[int(is_black_piece)])
@@ -124,4 +124,4 @@ def convert(
     board: chess.Board,
 ) -> Tuple[List[Optional[int]], DefaultDict[str, List[Tuple[int, str]]]]:
     collection = convert_board_to_collection(board)
-    return convert_collection_to_non_pawn_positions(collection)
+    return convert_to_non_pawn_positions(collection)
