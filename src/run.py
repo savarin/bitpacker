@@ -28,9 +28,171 @@ def convert_board_to_positions(
     return positions_by_piece
 
 
-def convert_non_pawn_positions(
-    positions_by_piece: DefaultDict[str, List[Tuple[int, str]]]
-) -> Tuple[List[Optional[int]], DefaultDict[str, List[Tuple[int, str]]]]:
+def convert_en_passant_target_to_position(en_passant_target: str) -> Tuple[str, str]:
+    assert en_passant_target[0] in FILES
+
+    if en_passant_target[1] == "3":
+        return en_passant_target[0] + "4", "P"
+
+    elif en_passant_target[1] == "6":
+        return en_passant_target[0] + "5", "p"
+
+    raise Exception("Exhaustive switch error.")
+
+
+def convert_en_passant_position(
+    en_passant_position: str, en_passant_piece: str, king_array: List[int]
+) -> List[Tuple[int, int]]:
+    assert en_passant_position[0] in FILES
+
+    if en_passant_position[1] == "4":
+        index = PIECES.index("P")
+
+    elif en_passant_position[1] == "5":
+        index = PIECES.index("p")
+
+    else:
+        raise Exception("Exhaustive switch error.")
+
+    return [
+        (
+            index + FILES.index(en_passant_position[0]),
+            king_array["Pp".index(en_passant_piece)],
+        )
+    ]
+
+
+def convert_to_pawn_positions(
+    positions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
+    promotions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
+    king_array: List[int],
+    en_passant_target: str,
+) -> Tuple[List[Optional[int]], List[str], List[str]]:
+    array: List[Optional[int]] = [None] * 32
+    en_passant_piece = None
+
+    if en_passant_target != "-":
+        en_passant_position, en_passant_piece = convert_en_passant_target_to_position(
+            en_passant_target
+        )
+        positions_by_piece[en_passant_piece] = [
+            position
+            for position in positions_by_piece[en_passant_piece]
+            if position[1] != en_passant_position
+        ]
+
+        en_passant_insertions = convert_en_passant_position(
+            en_passant_position, en_passant_piece, king_array
+        )
+        array[en_passant_insertions[0][0]] = en_passant_insertions[0][1]
+
+    promotion_map = {
+        "q": 1,
+        "r": 2,
+        "b": 3,
+        "n": 4,
+    }
+
+    white_promoted_pieces, black_promoted_pieces = [], []
+
+    for piece, positions in promotions_by_piece.items():
+        if piece.isupper():
+            white_promoted_pieces += [piece] * len(positions)
+        else:
+            black_promoted_pieces += [piece] * len(positions)
+
+    white_promoted_pieces = sorted(
+        white_promoted_pieces, key=lambda x: promotion_map[x.lower()]
+    )
+    black_promoted_pieces = sorted(
+        black_promoted_pieces, key=lambda x: promotion_map[x.lower()]
+    )
+
+    white_promoted_positions, black_promoted_positions = [], []
+
+    for white_promoted_piece in white_promoted_pieces:
+        white_promoted_positions += promotions_by_piece[white_promoted_piece]
+
+    for black_promoted_piece in black_promoted_pieces:
+        black_promoted_positions += promotions_by_piece[black_promoted_piece]
+
+    white_captured_count = (
+        8
+        - len(positions_by_piece.get("P", []))
+        - len(white_promoted_pieces)
+        - int(en_passant_piece == "P")
+    )
+    black_captured_count = (
+        8
+        - len(positions_by_piece.get("p", []))
+        - len(black_promoted_pieces)
+        - int(en_passant_piece == "p")
+    )
+
+    white_captured_positions = [
+        (king_array[1], "") for _ in range(white_captured_count)
+    ]
+    black_captured_positions = [
+        (king_array[0], "") for _ in range(black_captured_count)
+    ]
+
+    white_pawn_positions = (
+        positions_by_piece.get("P", [])
+        + white_promoted_positions
+        + white_captured_positions
+    )
+    black_pawn_positions = (
+        positions_by_piece.get("p", [])
+        + black_promoted_positions
+        + black_captured_positions
+    )
+
+    white_pawn_index, black_pawn_index = PIECES.index("P"), PIECES.index("p")
+
+    while white_pawn_positions:
+        if array[white_pawn_index] is None:
+            white_pawn_position = white_pawn_positions.pop(0)
+            array[white_pawn_index] = white_pawn_position[0]
+
+        white_pawn_index += 1
+
+    while black_pawn_positions:
+        if array[black_pawn_index] is None:
+            black_pawn_position = black_pawn_positions.pop(0)
+            array[black_pawn_index] = black_pawn_position[0]
+
+        black_pawn_index += 1
+
+    return array, white_promoted_pieces, black_promoted_pieces
+
+
+def convert_castling_availability(
+    castling_availability: str, king_array: List[int]
+) -> List[Tuple[int, int]]:
+    if castling_availability == "-":
+        return []
+
+    rook_index: Dict[str, int] = {
+        "q": PIECES.index("r") + 1,
+        "k": PIECES.index("r"),
+        "Q": PIECES.index("R") + 1,
+        "K": PIECES.index("R"),
+    }
+
+    insertions: List[Tuple[int, int]] = []
+
+    for piece in castling_availability:
+        is_black_piece = piece.islower()
+        insertions.append((rook_index[piece], king_array[int(is_black_piece)]))
+
+    return insertions
+
+
+def convert_positions(
+    positions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
+    castling_availability: str = "-",
+    en_passant_target: str = "-",
+) -> List[Optional[int]]:
     array: List[Optional[int]] = [None] * 32
     king_array: List[Optional[int]] = [None, None]
 
@@ -38,7 +200,7 @@ def convert_non_pawn_positions(
         str, List[Tuple[int, str]]
     ] = collections.defaultdict(list)
 
-    for non_pawn_piece in ["K", "k", "Q", "q", "R", "B", "N", "r", "b", "n"]:
+    for non_pawn_piece in ["K", "k", "Q", "q", "R", "r", "B", "b", "N", "n"]:
         non_pawn_index = PIECES.index(non_pawn_piece)
         non_pawn_positions = positions_by_piece.get(non_pawn_piece, [])
         is_white_piece = non_pawn_piece.isupper()
@@ -78,67 +240,38 @@ def convert_non_pawn_positions(
 
                     promotions_by_piece[non_pawn_piece].append(non_pawn_position)
 
-    return array, promotions_by_piece
+    assert king_array[0] is not None and king_array[1] is not None
+    non_optional_king_array: List[int] = [king_array[0], king_array[1]]
+
+    # TODO: Fix substitution when require ordered rook positions.
+    castling_ability_insertions = convert_castling_availability(
+        castling_availability, non_optional_king_array
+    )
+
+    for insertion in castling_ability_insertions:
+        array[insertion[0]] = insertion[1]
+
+    (
+        pawn_array,
+        white_promoted_pieces,
+        black_promoted_pieces,
+    ) = convert_to_pawn_positions(
+        positions_by_piece,
+        promotions_by_piece,
+        non_optional_king_array,
+        en_passant_target,
+    )
+
+    return array[:16] + pawn_array[16:]
 
 
-def convert_castling_availability(
-    castling_availability: str, king_array: List[int]
-) -> List[Tuple[int, int]]:
-    if castling_availability == "-":
-        return []
-
-    rook_index: Dict[str, int] = {
-        "q": PIECES.index("r") + 1,
-        "k": PIECES.index("r"),
-        "Q": PIECES.index("R") + 1,
-        "K": PIECES.index("R"),
-    }
-
-    replacements: List[Tuple[int, int]] = []
-
-    for piece in castling_availability:
-        is_black_piece = piece.islower()
-        replacements.append((rook_index[piece], king_array[int(is_black_piece)]))
-
-    return replacements
-
-
-def convert_en_passant_target_to_position(en_passant_target: str) -> Tuple[str, str]:
-    assert en_passant_target[0] in FILES
-
-    if en_passant_target[1] == "3":
-        return en_passant_target[0] + "4", "P"
-
-    elif en_passant_target[1] == "6":
-        return en_passant_target[0] + "5", "p"
-
-    raise Exception("Exhaustive switch error.")
-
-
-def convert_en_passant_position(
-    en_passant_position: str, en_passant_piece: str, king_array: List[int]
-) -> List[Tuple[int, int]]:
-    assert en_passant_position[0] in FILES
-
-    if en_passant_position[1] == "4":
-        index = PIECES.index("P")
-
-    elif en_passant_position[1] == "5":
-        index = PIECES.index("p")
-
-    else:
-        raise Exception("Exhaustive switch error.")
-
-    return [
-        (
-            index + FILES.index(en_passant_position[0]),
-            king_array["Pp".index(en_passant_piece)],
-        )
-    ]
-
-
-def convert(
-    board: chess.Board,
-) -> Tuple[List[Optional[int]], DefaultDict[str, List[Tuple[int, str]]]]:
+def convert(board: chess.Board) -> List[Optional[int]]:
     positions_by_piece = convert_board_to_positions(board)
-    return convert_non_pawn_positions(positions_by_piece)
+
+    board_details = board.fen().split(" ")
+    castling_availability = board_details[2]
+    en_passant_target = board_details[3]
+
+    return convert_positions(
+        positions_by_piece, castling_availability, en_passant_target
+    )
