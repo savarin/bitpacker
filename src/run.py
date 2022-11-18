@@ -2,6 +2,8 @@ from typing import DefaultDict, Dict, List, Optional, Tuple
 import collections
 import itertools
 
+import colorama
+
 import chess
 
 
@@ -292,3 +294,37 @@ def convert(board: chess.Board) -> Tuple[List[Optional[int]], int, int]:
     return convert_positions(
         positions_by_piece, castling_availability, en_passant_target
     )
+
+
+if __name__ == "__main__":
+    colorama.init(autoreset=True)
+    print("To leave the game, type 'exit'.")
+
+    board = chess.Board()
+    print("\n" + str(board) + "\n")
+
+    while True:
+        move = input("Please specify a move: ")
+
+        if move == "exit":
+            break
+
+        try:
+            board.push_san(move)
+        except ValueError:
+            print("Valid moves only, please try again.")
+            continue
+
+        print("\n" + str(board) + "\n")
+
+        array, white_lookup, black_lookup = convert(board)
+        print(
+            colorama.Fore.BLUE
+            + hex(int("".join([format(item, "06b") for item in array[16:]]), 2))
+        )
+        print(
+            colorama.Fore.BLUE
+            + hex(int("".join([format(item, "06b") for item in array[:16]]), 2))
+        )
+        print(colorama.Fore.RED + "0b" + format(white_lookup, "06b"))
+        print(colorama.Fore.RED + "0b" + format(black_lookup, "06b") + "\n")
