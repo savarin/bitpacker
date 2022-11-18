@@ -92,12 +92,37 @@ def test_convert_en_passant_position() -> None:
         run.convert_en_passant_position("a1", "p", king_array)
 
 
+def test_convert_promoted_pieces() -> None:
+    assert run.convert_promoted_pieces("", 0) == 0
+    assert run.convert_promoted_pieces("", 1) == 0
+    assert run.convert_promoted_pieces("", 2) == 0
+    assert run.convert_promoted_pieces("", 3) == 0
+    assert run.convert_promoted_pieces("", 4) == 0
+    assert run.convert_promoted_pieces("", 5) == 0
+    assert run.convert_promoted_pieces("", 6) == 0
+    assert run.convert_promoted_pieces("", 7) == 0
+    assert run.convert_promoted_pieces("", 8) == 0
+
+    assert run.convert_promoted_pieces("1111", 4) == 35
+    assert run.convert_promoted_pieces("2222", 4) == 55
+    assert run.convert_promoted_pieces("3333", 4) == 65
+    assert run.convert_promoted_pieces("4444", 4) == 69
+
+    assert run.convert_promoted_pieces("11111111", 0) == 330
+    assert run.convert_promoted_pieces("22222222", 0) == 450
+    assert run.convert_promoted_pieces("33333333", 0) == 486
+    assert run.convert_promoted_pieces("44444444", 0) == 494
+
+
 def test_convert_starting_board() -> None:
     board = chess.Board()
-    array = run.convert(board)
+    array, white_lookup, black_lookup = run.convert(board)
 
     assert array[:16] == [4, 60, 3, 59, 4, 4, 60, 60, 2, 5, 58, 61, 1, 6, 57, 62]
     assert array[16:] == [8, 9, 10, 11, 12, 13, 14, 15, 48, 49, 50, 51, 52, 53, 54, 55]
+
+    assert white_lookup == 0
+    assert black_lookup == 0
 
 
 def test_convert_with_en_passant() -> None:
@@ -106,10 +131,13 @@ def test_convert_with_en_passant() -> None:
     board.push_san("a5")
     board.push_san("d5")
     board.push_san("c5")
-    array = run.convert(board)
+    array, white_lookup, black_lookup = run.convert(board)
 
     assert array[:16] == [4, 60, 3, 59, 4, 4, 60, 60, 2, 5, 58, 61, 1, 6, 57, 62]
     assert array[16:] == [8, 9, 10, 12, 13, 14, 15, 35, 32, 49, 60, 51, 52, 53, 54, 55]
+
+    assert white_lookup == 0
+    assert black_lookup == 0
 
 
 def test_convert_with_capture() -> None:
@@ -120,10 +148,13 @@ def test_convert_with_capture() -> None:
     board.push_san("a5")
     board.push_san("Qxh7")
     board.push_san("Rxh7")
-    array = run.convert(board)
+    array, white_lookup, black_lookup = run.convert(board)
 
     assert array[:16] == [4, 60, 60, 59, 4, 4, 55, 60, 2, 5, 58, 61, 1, 6, 57, 62]
     assert array[16:] == [8, 9, 10, 12, 13, 14, 15, 27, 32, 35, 49, 50, 52, 53, 54, 4]
+
+    assert white_lookup == 0
+    assert black_lookup == 0
 
 
 def test_convert_with_promotion() -> None:
@@ -137,7 +168,10 @@ def test_convert_with_promotion() -> None:
     board.push_san("fxg7")
     board.push_san("d4")
     board.push_san("gxh8=Q")
-    array = run.convert(board)
+    array, white_lookup, black_lookup = run.convert(board)
 
     assert array[:16] == [4, 60, 3, 59, 4, 4, 56, 60, 2, 5, 58, 61, 1, 6, 57, 62]
     assert array[16:] == [8, 9, 10, 12, 13, 14, 15, 63, 27, 48, 49, 50, 55, 4, 4, 4]
+
+    assert white_lookup == 1
+    assert black_lookup == 0

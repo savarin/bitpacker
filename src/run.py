@@ -1,5 +1,6 @@
 from typing import DefaultDict, Dict, List, Optional, Tuple
 import collections
+import itertools
 
 import chess
 
@@ -62,12 +63,23 @@ def convert_en_passant_position(
     ]
 
 
+def convert_promoted_pieces(promoted_pieces: str, base_case_count: int):
+    # TODO: Enable uniques to be passed as an argument to speed up testing.
+    piece_count = len(promoted_pieces) + base_case_count
+
+    distincts = list(itertools.product(["0", "1", "2", "3", "4"], repeat=piece_count))
+    uniques = sorted(set(["".join(sorted(item)) for item in distincts]))
+
+    promoted_pieces_map = {item: i for i, item in enumerate(uniques)}
+    return promoted_pieces_map["0" * base_case_count + promoted_pieces]
+
+
 def convert_to_pawn_positions(
     positions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
     promotions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
     king_array: List[int],
     en_passant_target: str,
-) -> Tuple[List[Optional[int]], List[str], List[str]]:
+) -> Tuple[List[Optional[int]], int, int]:
     array: List[Optional[int]] = [None] * 32
     en_passant_piece = None
 
@@ -87,10 +99,10 @@ def convert_to_pawn_positions(
         array[en_passant_insertions[0][0]] = en_passant_insertions[0][1]
 
     promotion_map = {
-        "q": 1,
-        "r": 2,
-        "b": 3,
-        "n": 4,
+        "q": "1",
+        "r": "2",
+        "b": "3",
+        "n": "4",
     }
 
     white_promoted_pieces, black_promoted_pieces = [], []
@@ -163,7 +175,16 @@ def convert_to_pawn_positions(
 
         black_pawn_index += 1
 
-    return array, white_promoted_pieces, black_promoted_pieces
+    white_lookup = convert_promoted_pieces(
+        "".join([promotion_map[piece.lower()] for piece in white_promoted_pieces]),
+        len(positions_by_piece.get("P", [])),
+    )
+    black_lookup = convert_promoted_pieces(
+        "".join([promotion_map[piece.lower()] for piece in black_promoted_pieces]),
+        len(positions_by_piece.get("p", [])),
+    )
+
+    return array, white_lookup, black_lookup
 
 
 def convert_castling_availability(
@@ -192,7 +213,7 @@ def convert_positions(
     positions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
     castling_availability: str = "-",
     en_passant_target: str = "-",
-) -> List[Optional[int]]:
+) -> Tuple[List[Optional[int]], int, int]:
     array: List[Optional[int]] = [None] * 32
     king_array: List[Optional[int]] = [None, None]
 
@@ -251,21 +272,17 @@ def convert_positions(
     for insertion in castling_ability_insertions:
         array[insertion[0]] = insertion[1]
 
-    (
-        pawn_array,
-        white_promoted_pieces,
-        black_promoted_pieces,
-    ) = convert_to_pawn_positions(
+    pawn_array, white_lookup, black_lookup = convert_to_pawn_positions(
         positions_by_piece,
         promotions_by_piece,
         non_optional_king_array,
         en_passant_target,
     )
 
-    return array[:16] + pawn_array[16:]
+    return array[:16] + pawn_array[16:], white_lookup, black_lookup
 
 
-def convert(board: chess.Board) -> List[Optional[int]]:
+def convert(board: chess.Board) -> Tuple[List[Optional[int]], int, int]:
     positions_by_piece = convert_board_to_positions(board)
 
     board_details = board.fen().split(" ")
