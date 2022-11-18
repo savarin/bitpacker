@@ -298,7 +298,7 @@ def convert(board: chess.Board) -> Tuple[List[Optional[int]], int, int]:
 
 if __name__ == "__main__":
     colorama.init(autoreset=True)
-    print("To leave the game, type 'exit'.")
+    print("To restart the game, type 'restart'. To leave the game, type 'exit'.")
 
     board = chess.Board()
     print("\n" + str(board) + "\n")
@@ -308,6 +308,10 @@ if __name__ == "__main__":
 
         if move == "exit":
             break
+
+        if move == "restart":
+            board = chess.Board()
+            continue
 
         try:
             board.push_san(move)
