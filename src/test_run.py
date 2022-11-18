@@ -5,79 +5,79 @@ import run
 
 
 def test_convert_castling_availability() -> None:
-    king_positions = [4, 60]
+    king_array = [4, 60]
 
-    run.convert_castling_availability("KQkq", king_positions) == [
+    run.convert_castling_availability("KQkq", king_array) == [
         (6, 60),
         (7, 60),
         (4, 4),
         (5, 4),
     ]
-    run.convert_castling_availability("KQk", king_positions) == [
+    run.convert_castling_availability("KQk", king_array) == [
         (6, 60),
         (7, 60),
         (4, 4),
     ]
-    run.convert_castling_availability("KQq", king_positions) == [
+    run.convert_castling_availability("KQq", king_array) == [
         (6, 60),
         (7, 60),
         (5, 4),
     ]
-    run.convert_castling_availability("KQ", king_positions) == [(6, 60), (7, 60)]
-    run.convert_castling_availability("Kkq", king_positions) == [
+    run.convert_castling_availability("KQ", king_array) == [(6, 60), (7, 60)]
+    run.convert_castling_availability("Kkq", king_array) == [
         (6, 60),
         (4, 4),
         (5, 4),
     ]
-    run.convert_castling_availability("Kk", king_positions) == [(6, 60), (4, 4)]
-    run.convert_castling_availability("Kq", king_positions) == [(6, 60), (5, 4)]
-    run.convert_castling_availability("K", king_positions) == [(6, 60)]
-    run.convert_castling_availability("Qkq", king_positions) == [
+    run.convert_castling_availability("Kk", king_array) == [(6, 60), (4, 4)]
+    run.convert_castling_availability("Kq", king_array) == [(6, 60), (5, 4)]
+    run.convert_castling_availability("K", king_array) == [(6, 60)]
+    run.convert_castling_availability("Qkq", king_array) == [
         (7, 60),
         (4, 4),
         (5, 4),
     ]
-    run.convert_castling_availability("Qk", king_positions) == [(7, 60), (4, 4)]
-    run.convert_castling_availability("Qq", king_positions) == [(7, 60), (5, 4)]
-    run.convert_castling_availability("Q", king_positions) == [(7, 60)]
-    run.convert_castling_availability("kq", king_positions) == [(4, 4), (5, 4)]
-    run.convert_castling_availability("k", king_positions) == [(4, 4)]
-    run.convert_castling_availability("q", king_positions) == [(5, 4)]
-    run.convert_castling_availability("-", king_positions) == []
+    run.convert_castling_availability("Qk", king_array) == [(7, 60), (4, 4)]
+    run.convert_castling_availability("Qq", king_array) == [(7, 60), (5, 4)]
+    run.convert_castling_availability("Q", king_array) == [(7, 60)]
+    run.convert_castling_availability("kq", king_array) == [(4, 4), (5, 4)]
+    run.convert_castling_availability("k", king_array) == [(4, 4)]
+    run.convert_castling_availability("q", king_array) == [(5, 4)]
+    run.convert_castling_availability("-", king_array) == []
 
 
 def test_convert_en_passant_target() -> None:
-    king_positions = [4, 60]
+    king_array = [4, 60]
 
-    assert run.convert_en_passant_target("a3", king_positions) == [(16, 4)]
-    assert run.convert_en_passant_target("b3", king_positions) == [(17, 4)]
-    assert run.convert_en_passant_target("c3", king_positions) == [(18, 4)]
-    assert run.convert_en_passant_target("d3", king_positions) == [(19, 4)]
-    assert run.convert_en_passant_target("e3", king_positions) == [(20, 4)]
-    assert run.convert_en_passant_target("f3", king_positions) == [(21, 4)]
-    assert run.convert_en_passant_target("g3", king_positions) == [(22, 4)]
-    assert run.convert_en_passant_target("h3", king_positions) == [(23, 4)]
-    assert run.convert_en_passant_target("a6", king_positions) == [(24, 60)]
-    assert run.convert_en_passant_target("b6", king_positions) == [(25, 60)]
-    assert run.convert_en_passant_target("c6", king_positions) == [(26, 60)]
-    assert run.convert_en_passant_target("d6", king_positions) == [(27, 60)]
-    assert run.convert_en_passant_target("e6", king_positions) == [(28, 60)]
-    assert run.convert_en_passant_target("f6", king_positions) == [(29, 60)]
-    assert run.convert_en_passant_target("g6", king_positions) == [(30, 60)]
-    assert run.convert_en_passant_target("h6", king_positions) == [(31, 60)]
-    assert run.convert_en_passant_target("-", king_positions) == []
+    assert run.convert_en_passant_target("a3", king_array) == [(16, 4)]
+    assert run.convert_en_passant_target("b3", king_array) == [(17, 4)]
+    assert run.convert_en_passant_target("c3", king_array) == [(18, 4)]
+    assert run.convert_en_passant_target("d3", king_array) == [(19, 4)]
+    assert run.convert_en_passant_target("e3", king_array) == [(20, 4)]
+    assert run.convert_en_passant_target("f3", king_array) == [(21, 4)]
+    assert run.convert_en_passant_target("g3", king_array) == [(22, 4)]
+    assert run.convert_en_passant_target("h3", king_array) == [(23, 4)]
+    assert run.convert_en_passant_target("a6", king_array) == [(24, 60)]
+    assert run.convert_en_passant_target("b6", king_array) == [(25, 60)]
+    assert run.convert_en_passant_target("c6", king_array) == [(26, 60)]
+    assert run.convert_en_passant_target("d6", king_array) == [(27, 60)]
+    assert run.convert_en_passant_target("e6", king_array) == [(28, 60)]
+    assert run.convert_en_passant_target("f6", king_array) == [(29, 60)]
+    assert run.convert_en_passant_target("g6", king_array) == [(30, 60)]
+    assert run.convert_en_passant_target("h6", king_array) == [(31, 60)]
+    assert run.convert_en_passant_target("-", king_array) == []
 
     with pytest.raises(AssertionError):
-        run.convert_en_passant_target("a1", king_positions)
+        run.convert_en_passant_target("a1", king_array)
 
 
 def test_convert_starting_board() -> None:
     board = chess.Board()
-    positions, excess = run.convert(board)
+    array, promotions_by_piece = run.convert(board)
 
-    assert positions[:16] == [4, 60, 3, 59, 0, 7, 56, 63, 2, 5, 58, 61, 1, 6, 57, 62]
+    assert array[:16] == [4, 60, 3, 59, 0, 7, 56, 63, 2, 5, 58, 61, 1, 6, 57, 62]
 
-    assert len(excess) == 0
+    assert len(promotions_by_piece) == 0
 
 
 def test_convert_with_capture() -> None:
@@ -88,11 +88,11 @@ def test_convert_with_capture() -> None:
     board.push_san("a5")
     board.push_san("Qxh7")
     board.push_san("Rxh7")
-    positions, excess = run.convert(board)
+    array, promotions_by_piece = run.convert(board)
 
-    assert positions[:16] == [4, 60, 60, 59, 0, 7, 55, 56, 2, 5, 58, 61, 1, 6, 57, 62]
+    assert array[:16] == [4, 60, 60, 59, 0, 7, 55, 56, 2, 5, 58, 61, 1, 6, 57, 62]
 
-    assert len(excess) == 0
+    assert len(promotions_by_piece) == 0
 
 
 def test_convert_with_promotion() -> None:
@@ -106,9 +106,9 @@ def test_convert_with_promotion() -> None:
     board.push_san("bxa7")
     board.push_san("h4")
     board.push_san("axb8=Q")
-    positions, excess = run.convert(board)
+    array, promotions_by_piece = run.convert(board)
 
-    assert positions[:16] == [4, 60, 3, 59, 0, 7, 56, 63, 2, 5, 58, 61, 1, 6, 62, 4]
+    assert array[:16] == [4, 60, 3, 59, 0, 7, 56, 63, 2, 5, 58, 61, 1, 6, 62, 4]
 
-    assert len(excess) == 1
-    assert excess["Q"] == [(57, "b8")]
+    assert len(promotions_by_piece) == 1
+    assert promotions_by_piece["Q"] == [(57, "b8")]
