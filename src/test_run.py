@@ -98,17 +98,17 @@ def test_convert_with_capture() -> None:
 def test_convert_with_promotion() -> None:
     board = chess.Board()
     board.push_san("d4")
-    board.push_san("c5")
-    board.push_san("dxc5")
-    board.push_san("b6")
-    board.push_san("cxb6")
-    board.push_san("h5")
-    board.push_san("bxa7")
-    board.push_san("h4")
-    board.push_san("axb8=Q")
+    board.push_san("e5")
+    board.push_san("dxe5")
+    board.push_san("f6")
+    board.push_san("exf6")
+    board.push_san("d5")
+    board.push_san("fxg7")
+    board.push_san("d4")
+    board.push_san("gxh8=Q")
     array, promotions_by_piece = run.convert(board)
 
-    assert array[:16] == [4, 60, 3, 59, 0, 7, 56, 63, 2, 5, 58, 61, 1, 6, 62, 4]
+    assert array[:16] == [4, 60, 3, 59, 0, 7, 56, 4, 2, 5, 58, 61, 1, 6, 57, 62]
 
     assert len(promotions_by_piece) == 1
-    assert promotions_by_piece["Q"] == [(57, "b8")]
+    assert promotions_by_piece["Q"] == [(63, "h8")]

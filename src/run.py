@@ -103,6 +103,16 @@ def convert_castling_availability(
     return replace
 
 
+def convert_en_passant_target_to_position(en_passant_target: str) -> str:
+    if en_passant_target[1] == "3":
+        return en_passant_target[0] + "4"
+
+    elif en_passant_target[1] == "6":
+        return en_passant_target[0] + "5"
+
+    raise Exception("Exhaustive switch error.")
+
+
 def convert_en_passant_target(
     en_passant_target: str, king_array: List[int]
 ) -> List[Tuple[int, int]]:
@@ -112,10 +122,11 @@ def convert_en_passant_target(
     assert en_passant_target[0] in FILES and en_passant_target[1] in "36"
 
     is_black_piece = en_passant_target[1] == "6"
+    en_passant_position = convert_en_passant_target_to_position(en_passant_target)
 
-    if en_passant_target[1] == "3":
+    if en_passant_position[1] == "4":
         index = PIECES.index("P")
-    elif en_passant_target[1] == "6":
+    elif en_passant_position[1] == "5":
         index = PIECES.index("p")
 
     return [
