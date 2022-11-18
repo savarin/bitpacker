@@ -94,43 +94,37 @@ def convert_castling_availability(
         "K": PIECES.index("R"),
     }
 
-    replace: List[Tuple[int, int]] = []
+    replacements: List[Tuple[int, int]] = []
 
     for piece in castling_availability:
         is_black_piece = piece.islower()
-        replace.append((rook_index[piece], king_array[int(is_black_piece)]))
+        replacements.append((rook_index[piece], king_array[int(is_black_piece)]))
 
-    return replace
+    return replacements
 
 
-def convert_en_passant_target_to_position(en_passant_target: str) -> str:
+def convert_en_passant_target_to_position(en_passant_target: str) -> Tuple[str, bool]:
+    assert en_passant_target[0] in FILES and en_passant_target[1] in "45"
+
     if en_passant_target[1] == "3":
-        return en_passant_target[0] + "4"
+        return en_passant_target[0] + "4", False  # bool represents is_black_piece
 
     elif en_passant_target[1] == "6":
-        return en_passant_target[0] + "5"
+        return en_passant_target[0] + "5", True
 
     raise Exception("Exhaustive switch error.")
 
 
-def convert_en_passant_target(
-    en_passant_target: str, king_array: List[int]
+def convert_en_passant_position(
+    en_passant_position: str, is_black_piece: bool, king_array: List[int]
 ) -> List[Tuple[int, int]]:
-    if en_passant_target == "-":
-        return []
-
-    assert en_passant_target[0] in FILES and en_passant_target[1] in "36"
-
-    is_black_piece = en_passant_target[1] == "6"
-    en_passant_position = convert_en_passant_target_to_position(en_passant_target)
-
     if en_passant_position[1] == "4":
         index = PIECES.index("P")
     elif en_passant_position[1] == "5":
         index = PIECES.index("p")
 
     return [
-        (index + FILES.index(en_passant_target[0]), king_array[int(is_black_piece)])
+        (index + FILES.index(en_passant_position[0]), king_array[int(is_black_piece)])
     ]
 
 

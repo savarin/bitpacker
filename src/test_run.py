@@ -1,5 +1,4 @@
 import chess
-import pytest
 
 import run
 
@@ -49,26 +48,22 @@ def test_convert_castling_availability() -> None:
 def test_convert_en_passant_target() -> None:
     king_array = [4, 60]
 
-    assert run.convert_en_passant_target("a3", king_array) == [(16, 4)]
-    assert run.convert_en_passant_target("b3", king_array) == [(17, 4)]
-    assert run.convert_en_passant_target("c3", king_array) == [(18, 4)]
-    assert run.convert_en_passant_target("d3", king_array) == [(19, 4)]
-    assert run.convert_en_passant_target("e3", king_array) == [(20, 4)]
-    assert run.convert_en_passant_target("f3", king_array) == [(21, 4)]
-    assert run.convert_en_passant_target("g3", king_array) == [(22, 4)]
-    assert run.convert_en_passant_target("h3", king_array) == [(23, 4)]
-    assert run.convert_en_passant_target("a6", king_array) == [(24, 60)]
-    assert run.convert_en_passant_target("b6", king_array) == [(25, 60)]
-    assert run.convert_en_passant_target("c6", king_array) == [(26, 60)]
-    assert run.convert_en_passant_target("d6", king_array) == [(27, 60)]
-    assert run.convert_en_passant_target("e6", king_array) == [(28, 60)]
-    assert run.convert_en_passant_target("f6", king_array) == [(29, 60)]
-    assert run.convert_en_passant_target("g6", king_array) == [(30, 60)]
-    assert run.convert_en_passant_target("h6", king_array) == [(31, 60)]
-    assert run.convert_en_passant_target("-", king_array) == []
-
-    with pytest.raises(AssertionError):
-        run.convert_en_passant_target("a1", king_array)
+    assert run.convert_en_passant_position("a4", False, king_array) == [(16, 4)]
+    assert run.convert_en_passant_position("b4", False, king_array) == [(17, 4)]
+    assert run.convert_en_passant_position("c4", False, king_array) == [(18, 4)]
+    assert run.convert_en_passant_position("d4", False, king_array) == [(19, 4)]
+    assert run.convert_en_passant_position("e4", False, king_array) == [(20, 4)]
+    assert run.convert_en_passant_position("f4", False, king_array) == [(21, 4)]
+    assert run.convert_en_passant_position("g4", False, king_array) == [(22, 4)]
+    assert run.convert_en_passant_position("h4", False, king_array) == [(23, 4)]
+    assert run.convert_en_passant_position("a5", True, king_array) == [(24, 60)]
+    assert run.convert_en_passant_position("b5", True, king_array) == [(25, 60)]
+    assert run.convert_en_passant_position("c5", True, king_array) == [(26, 60)]
+    assert run.convert_en_passant_position("d5", True, king_array) == [(27, 60)]
+    assert run.convert_en_passant_position("e5", True, king_array) == [(28, 60)]
+    assert run.convert_en_passant_position("f5", True, king_array) == [(29, 60)]
+    assert run.convert_en_passant_position("g5", True, king_array) == [(30, 60)]
+    assert run.convert_en_passant_position("h5", True, king_array) == [(31, 60)]
 
 
 def test_convert_starting_board() -> None:
