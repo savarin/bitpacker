@@ -46,7 +46,7 @@ def convert_non_pawn_positions(
         if non_pawn_piece.lower() == "k":
             assert len(non_pawn_positions) > 0
             array[non_pawn_index] = non_pawn_positions[0][0]
-            king_array[["K", "k"].index(non_pawn_piece)] = non_pawn_positions[0][0]
+            king_array["Kk".index(non_pawn_piece)] = non_pawn_positions[0][0]
 
         elif non_pawn_piece.lower() == "q":
             if len(non_pawn_positions) == 0:
@@ -103,28 +103,37 @@ def convert_castling_availability(
     return replacements
 
 
-def convert_en_passant_target_to_position(en_passant_target: str) -> Tuple[str, bool]:
-    assert en_passant_target[0] in FILES and en_passant_target[1] in "45"
+def convert_en_passant_target_to_position(en_passant_target: str) -> Tuple[str, str]:
+    assert en_passant_target[0] in FILES
 
     if en_passant_target[1] == "3":
-        return en_passant_target[0] + "4", False  # bool represents is_black_piece
+        return en_passant_target[0] + "4", "P"
 
     elif en_passant_target[1] == "6":
-        return en_passant_target[0] + "5", True
+        return en_passant_target[0] + "5", "p"
 
     raise Exception("Exhaustive switch error.")
 
 
 def convert_en_passant_position(
-    en_passant_position: str, is_black_piece: bool, king_array: List[int]
+    en_passant_position: str, en_passant_piece: str, king_array: List[int]
 ) -> List[Tuple[int, int]]:
+    assert en_passant_position[0] in FILES
+
     if en_passant_position[1] == "4":
         index = PIECES.index("P")
+
     elif en_passant_position[1] == "5":
         index = PIECES.index("p")
 
+    else:
+        raise Exception("Exhaustive switch error.")
+
     return [
-        (index + FILES.index(en_passant_position[0]), king_array[int(is_black_piece)])
+        (
+            index + FILES.index(en_passant_position[0]),
+            king_array["Pp".index(en_passant_piece)],
+        )
     ]
 
 
