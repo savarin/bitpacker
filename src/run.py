@@ -312,8 +312,8 @@ def expose_board(board: chess.Board) -> None:
         colorama.Fore.BLUE
         + hex(int("".join([format(item, "06b") for item in array[16:]]), 2))
     )
-    print(colorama.Fore.RED + "0b" + format(white_lookup, "07b"))
-    print(colorama.Fore.RED + "0b" + format(black_lookup, "07b") + "\n")
+    print(colorama.Fore.RED + format(white_lookup, "#011b"))
+    print(colorama.Fore.RED + format(black_lookup, "#011b") + "\n")
 
 
 if __name__ == "__main__":
@@ -329,12 +329,13 @@ if __name__ == "__main__":
         if move == "exit":
             break
 
-        if move == "restart":
+        elif move == "restart":
             board = chess.Board()
             continue
 
         try:
             board.push_san(move)
+
         except ValueError:
             print("Valid moves only, please try again.")
             continue
