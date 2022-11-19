@@ -1,5 +1,5 @@
 # bitpacker
 
-bitpacking chess positions
+bitpacks chess positions
 
 [try me!](https://replit.com/@savarin/bitpacker?v=1)
