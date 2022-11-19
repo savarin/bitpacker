@@ -14,6 +14,7 @@ PIECES = "KkQqR.r.B.b.N.n.P.......p......."
 def convert_board_to_positions(
     board: chess.Board,
 ) -> DefaultDict[str, List[Tuple[int, str]]]:
+    # TODO: Convert FEN notation to positions.
     positions_by_piece: DefaultDict[
         str, List[Tuple[int, str]]
     ] = collections.defaultdict(list)
@@ -66,7 +67,7 @@ def convert_en_passant_position(
 
 
 def convert_promoted_pieces(promoted_pieces: str, base_case_count: int):
-    # TODO: Enable uniques to be passed as an argument to speed up testing.
+    # NEXT: Enable uniques to be passed as an argument to speed up testing.
     piece_count = len(promoted_pieces) + base_case_count
 
     distincts = list(itertools.product(["0", "1", "2", "3", "4"], repeat=piece_count))
@@ -85,6 +86,7 @@ def convert_to_pawn_positions(
     array: List[Optional[int]] = [None] * 32
     en_passant_piece = None
 
+    # NEXT: Simplify logic to enable generation for both sides.
     if en_passant_target != "-":
         en_passant_position, en_passant_piece = convert_en_passant_target_to_position(
             en_passant_target
@@ -223,6 +225,7 @@ def convert_positions(
         str, List[Tuple[int, str]]
     ] = collections.defaultdict(list)
 
+    # NEXT: Isolate changes to one piece at a time and merge at the end.
     for non_pawn_piece in ["K", "k", "Q", "q", "R", "r", "B", "b", "N", "n"]:
         non_pawn_index = PIECES.index(non_pawn_piece)
         non_pawn_positions = positions_by_piece.get(non_pawn_piece, [])
@@ -233,6 +236,7 @@ def convert_positions(
             array[non_pawn_index] = non_pawn_positions[0][0]
             king_array["Kk".index(non_pawn_piece)] = non_pawn_positions[0][0]
 
+        # NEXT: Create generic function that has expected piece count as argument.
         elif non_pawn_piece.lower() == "q":
             if len(non_pawn_positions) == 0:
                 array[non_pawn_index] = king_array[int(is_white_piece)]
@@ -296,12 +300,28 @@ def convert(board: chess.Board) -> Tuple[List[Optional[int]], int, int]:
     )
 
 
+def expose_board(board: chess.Board) -> None:
+    array, white_lookup, black_lookup = convert(board)
+
+    print("\n" + str(board) + "\n")
+    print(
+        colorama.Fore.BLUE
+        + hex(int("".join([format(item, "06b") for item in array[:16]]), 2))
+    )
+    print(
+        colorama.Fore.BLUE
+        + hex(int("".join([format(item, "06b") for item in array[16:]]), 2))
+    )
+    print(colorama.Fore.RED + "0b" + format(white_lookup, "07b"))
+    print(colorama.Fore.RED + "0b" + format(black_lookup, "07b") + "\n")
+
+
 if __name__ == "__main__":
     colorama.init(autoreset=True)
     print("To restart the game, type 'restart'. To leave the game, type 'exit'.")
 
     board = chess.Board()
-    print("\n" + str(board) + "\n")
+    expose_board(board)
 
     while True:
         move = input("Please specify a move: ")
@@ -319,16 +339,4 @@ if __name__ == "__main__":
             print("Valid moves only, please try again.")
             continue
 
-        print("\n" + str(board) + "\n")
-
-        array, white_lookup, black_lookup = convert(board)
-        print(
-            colorama.Fore.BLUE
-            + hex(int("".join([format(item, "06b") for item in array[16:]]), 2))
-        )
-        print(
-            colorama.Fore.BLUE
-            + hex(int("".join([format(item, "06b") for item in array[:16]]), 2))
-        )
-        print(colorama.Fore.RED + "0b" + format(white_lookup, "06b"))
-        print(colorama.Fore.RED + "0b" + format(black_lookup, "06b") + "\n")
+        expose_board(board)
