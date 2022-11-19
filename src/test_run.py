@@ -1,3 +1,4 @@
+from typing import Dict
 import chess
 import pytest
 
@@ -92,26 +93,20 @@ def test_convert_en_passant_position() -> None:
         run.convert_en_passant_position("a1", "p", king_array)
 
 
-def test_convert_promoted_pieces() -> None:
-    assert run.convert_promoted_pieces("", 0) == 0
-    assert run.convert_promoted_pieces("", 1) == 0
-    assert run.convert_promoted_pieces("", 2) == 0
-    assert run.convert_promoted_pieces("", 3) == 0
-    assert run.convert_promoted_pieces("", 4) == 0
-    assert run.convert_promoted_pieces("", 5) == 0
-    assert run.convert_promoted_pieces("", 6) == 0
-    assert run.convert_promoted_pieces("", 7) == 0
-    assert run.convert_promoted_pieces("", 8) == 0
+@pytest.fixture
+def lookup_map() -> Dict[str, int]:
+    return run.generate_lookup_map(8, 5)
 
-    assert run.convert_promoted_pieces("1111", 4) == 35
-    assert run.convert_promoted_pieces("2222", 4) == 55
-    assert run.convert_promoted_pieces("3333", 4) == 65
-    assert run.convert_promoted_pieces("4444", 4) == 69
 
-    assert run.convert_promoted_pieces("11111111", 0) == 330
-    assert run.convert_promoted_pieces("22222222", 0) == 450
-    assert run.convert_promoted_pieces("33333333", 0) == 486
-    assert run.convert_promoted_pieces("44444444", 0) == 494
+def test_convert_promoted_pieces(lookup_map: Dict[str, int]) -> None:
+    assert run.convert_promoted_pieces("1111", 4, lookup_map) == 35
+    assert run.convert_promoted_pieces("2222", 4, lookup_map) == 55
+    assert run.convert_promoted_pieces("3333", 4, lookup_map) == 65
+    assert run.convert_promoted_pieces("4444", 4, lookup_map) == 69
+    assert run.convert_promoted_pieces("11111111", 0, lookup_map) == 330
+    assert run.convert_promoted_pieces("22222222", 0, lookup_map) == 450
+    assert run.convert_promoted_pieces("33333333", 0, lookup_map) == 486
+    assert run.convert_promoted_pieces("44444444", 0, lookup_map) == 494
 
 
 def test_convert_starting_board() -> None:

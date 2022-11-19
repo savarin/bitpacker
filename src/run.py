@@ -66,14 +66,27 @@ def convert_en_passant_position(
     ]
 
 
-def convert_promoted_pieces(promoted_pieces: str, base_case_count: int):
-    # NEXT: Enable uniques to be passed as an argument to speed up testing.
-    piece_count = len(promoted_pieces) + base_case_count
-
-    distincts = list(itertools.product(["0", "1", "2", "3", "4"], repeat=piece_count))
+def generate_lookup_map(length: int, member_count: int) -> Dict[str, int]:
+    members = [str(item) for item in range(member_count)]
+    distincts = list(itertools.product(members, repeat=length))
     uniques = sorted(set(["".join(sorted(item)) for item in distincts]))
 
-    promoted_pieces_map = {item: i for i, item in enumerate(uniques)}
+    return {item: i for i, item in enumerate(uniques)}
+
+
+def convert_promoted_pieces(
+    promoted_pieces: str,
+    base_case_count: int,
+    promoted_pieces_map: Optional[Dict[str, int]] = None,
+):
+    if len(promoted_pieces) == 0:
+        return 0
+
+    piece_count = len(promoted_pieces) + base_case_count
+
+    if promoted_pieces_map is None:
+        promoted_pieces_map = generate_lookup_map(piece_count, 5)
+
     return promoted_pieces_map["0" * base_case_count + promoted_pieces]
 
 
