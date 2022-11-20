@@ -95,7 +95,7 @@ def test_convert_en_passant_position() -> None:
 
 @pytest.fixture
 def lookup_map() -> Dict[str, int]:
-    return run.generate_lookup_map(8, 5)
+    return run.generate_lookup_map_with_recursion(8, 5)
 
 
 def test_convert_promoted_pieces(lookup_map: Dict[str, int]) -> None:
