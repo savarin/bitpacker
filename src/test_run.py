@@ -93,6 +93,34 @@ def test_convert_en_passant_position() -> None:
         run.convert_en_passant_position("a1", "p", king_array)
 
 
+def test_possibilities() -> None:
+    assert run.possibilities(0, []) == []
+    assert run.possibilities(1, []) == []
+
+    assert run.possibilities(0, ["0"]) == [""]
+    assert run.possibilities(1, ["0"]) == ["0"]
+
+    assert run.possibilities(1, ["0", "1"]) == ["0", "1"]
+    assert run.possibilities(1, ["0", "1", "2"]) == ["0", "1", "2"]
+
+    assert run.possibilities(2, ["0", "1"]) == ["00", "01", "11"]
+    assert run.possibilities(2, ["0", "1", "2"]) == ["00", "01", "11", "02", "12", "22"]
+
+    assert run.possibilities(3, ["0", "1"]) == ["000", "001", "011", "111"]
+    assert run.possibilities(3, ["0", "1", "2"]) == [
+        "000",
+        "001",
+        "011",
+        "111",
+        "002",
+        "012",
+        "112",
+        "022",
+        "122",
+        "222",
+    ]
+
+
 @pytest.fixture
 def lookup_map() -> Dict[str, int]:
     return run.generate_lookup_map_with_recursion(8, 5)
