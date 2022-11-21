@@ -66,27 +66,26 @@ def convert_en_passant_position(
     ]
 
 
-def possibilities(length: int, items: List[str]) -> List[str]:
+def generate_unique_strings(length: int, items: List[str]) -> List[str]:
     if len(items) == 0:
         return []
 
     if length == 0:
         return [""]
 
-    return possibilities(length, items[:-1]) + [
-        item + items[-1] for item in possibilities(length - 1, items)
+    return generate_unique_strings(length, items[:-1]) + [
+        item + items[-1] for item in generate_unique_strings(length - 1, items)
     ]
 
 
-def generate_lookup_map_with_recursion(
-    length: int, member_count: int
-) -> Dict[str, int]:
-    uniques = possibilities(length, [str(item) for item in range(member_count)])
+def create_lookup_map_with_recursion(length: int, member_count: int) -> Dict[str, int]:
+    members = [str(item) for item in range(member_count)]
+    uniques = generate_unique_strings(length, members)
 
     return {item: i for i, item in enumerate(sorted(uniques))}
 
 
-def generate_lookup_map_with_product(length: int, member_count: int) -> Dict[str, int]:
+def create_lookup_map_with_product(length: int, member_count: int) -> Dict[str, int]:
     members = [str(item) for item in range(member_count)]
     distincts = list(itertools.product(members, repeat=length))
     uniques = set(["".join(sorted(item)) for item in distincts])
@@ -105,7 +104,7 @@ def convert_promoted_pieces(
     piece_count = len(promoted_pieces) + base_case_count
 
     if promoted_pieces_map is None:
-        promoted_pieces_map = generate_lookup_map_with_recursion(piece_count, 5)
+        promoted_pieces_map = create_lookup_map_with_recursion(piece_count, 5)
 
     return promoted_pieces_map["0" * base_case_count + promoted_pieces]
 

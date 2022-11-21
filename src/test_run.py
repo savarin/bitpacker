@@ -93,21 +93,28 @@ def test_convert_en_passant_position() -> None:
         run.convert_en_passant_position("a1", "p", king_array)
 
 
-def test_possibilities() -> None:
-    assert run.possibilities(0, []) == []
-    assert run.possibilities(1, []) == []
+def test_generate_unique_strings() -> None:
+    assert run.generate_unique_strings(0, []) == []
+    assert run.generate_unique_strings(1, []) == []
 
-    assert run.possibilities(0, ["0"]) == [""]
-    assert run.possibilities(1, ["0"]) == ["0"]
+    assert run.generate_unique_strings(0, ["0"]) == [""]
+    assert run.generate_unique_strings(1, ["0"]) == ["0"]
 
-    assert run.possibilities(1, ["0", "1"]) == ["0", "1"]
-    assert run.possibilities(1, ["0", "1", "2"]) == ["0", "1", "2"]
+    assert run.generate_unique_strings(1, ["0", "1"]) == ["0", "1"]
+    assert run.generate_unique_strings(1, ["0", "1", "2"]) == ["0", "1", "2"]
 
-    assert run.possibilities(2, ["0", "1"]) == ["00", "01", "11"]
-    assert run.possibilities(2, ["0", "1", "2"]) == ["00", "01", "11", "02", "12", "22"]
+    assert run.generate_unique_strings(2, ["0", "1"]) == ["00", "01", "11"]
+    assert run.generate_unique_strings(2, ["0", "1", "2"]) == [
+        "00",
+        "01",
+        "11",
+        "02",
+        "12",
+        "22",
+    ]
 
-    assert run.possibilities(3, ["0", "1"]) == ["000", "001", "011", "111"]
-    assert run.possibilities(3, ["0", "1", "2"]) == [
+    assert run.generate_unique_strings(3, ["0", "1"]) == ["000", "001", "011", "111"]
+    assert run.generate_unique_strings(3, ["0", "1", "2"]) == [
         "000",
         "001",
         "011",
@@ -123,7 +130,7 @@ def test_possibilities() -> None:
 
 @pytest.fixture
 def lookup_map() -> Dict[str, int]:
-    return run.generate_lookup_map_with_recursion(8, 5)
+    return run.create_lookup_map_with_recursion(8, 5)
 
 
 def test_convert_promoted_pieces(lookup_map: Dict[str, int]) -> None:
