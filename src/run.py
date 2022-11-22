@@ -66,29 +66,31 @@ def convert_en_passant_position(
     ]
 
 
-def generate_unique_strings(length: int, items: List[str]) -> List[str]:
+def generate_uniques_recursive(length: int, items: List[str]) -> List[str]:
     if len(items) == 0:
         return []
 
     if length == 0:
         return [""]
 
-    return generate_unique_strings(length, items[:-1]) + [
-        item + items[-1] for item in generate_unique_strings(length - 1, items)
+    uniques = generate_uniques_recursive(length, items[:-1]) + [
+        item + items[-1] for item in generate_uniques_recursive(length - 1, items)
     ]
+    return sorted(uniques)
 
 
-def create_lookup_map_with_recursion(length: int, member_count: int) -> Dict[str, int]:
-    members = [str(item) for item in range(member_count)]
-    uniques = generate_unique_strings(length, members)
+def generate_uniques_cartesian(length: int, items: List[str]) -> List[str]:
+    if len(items) == 0:
+        return []
 
-    return {item: i for i, item in enumerate(sorted(uniques))}
-
-
-def create_lookup_map_with_product(length: int, member_count: int) -> Dict[str, int]:
-    members = [str(item) for item in range(member_count)]
-    distincts = list(itertools.product(members, repeat=length))
+    distincts = list(itertools.product(items, repeat=length))
     uniques = set(["".join(sorted(item)) for item in distincts])
+    return sorted(uniques)
+
+
+def create_lookup_map(length: int, member_count: int) -> Dict[str, int]:
+    members = [str(item) for item in range(member_count)]
+    uniques = generate_uniques_recursive(length, members)
 
     return {item: i for i, item in enumerate(sorted(uniques))}
 
@@ -104,7 +106,7 @@ def convert_promoted_pieces(
     piece_count = len(promoted_pieces) + base_case_count
 
     if promoted_pieces_map is None:
-        promoted_pieces_map = create_lookup_map_with_recursion(piece_count, 5)
+        promoted_pieces_map = create_lookup_map(piece_count, 5)
 
     return promoted_pieces_map["0" * base_case_count + promoted_pieces]
 
