@@ -4,6 +4,7 @@ import collections
 import colorama
 import chess
 
+import bitpacker
 import castling
 import common
 import en_passant
@@ -161,8 +162,20 @@ def convert_positions(
         str, List[Tuple[int, str]]
     ] = collections.defaultdict(list)
 
+    assert "K" in positions_by_piece and "k" in positions_by_piece
+    white_king_array, white_king_promotions = bitpacker.set_piece_position(
+        1, positions_by_piece["K"], None
+    )
+    black_king_array, black_king_promotions = bitpacker.set_piece_position(
+        1, positions_by_piece["k"], None
+    )
+
+    king_array = white_king_array + black_king_array
+    array = king_array + array[2:]
+    assert len(white_king_promotions) == 0 and len(black_king_promotions) == 0
+
     # NEXT: Isolate changes to one piece at a time and merge at the end.
-    for non_pawn_piece in ["K", "k", "Q", "q", "R", "r", "B", "b", "N", "n"]:
+    for non_pawn_piece in ["Q", "q", "R", "r", "B", "b", "N", "n"]:
         non_pawn_index = common.PIECES.index(non_pawn_piece)
         non_pawn_positions = positions_by_piece.get(non_pawn_piece, [])
         is_white_piece = non_pawn_piece.isupper()
@@ -172,7 +185,6 @@ def convert_positions(
             array[non_pawn_index] = non_pawn_positions[0][0]
             king_array["Kk".index(non_pawn_piece)] = non_pawn_positions[0][0]
 
-        # NEXT: Create generic function that has expected piece count as argument.
         elif non_pawn_piece.lower() == "q":
             if len(non_pawn_positions) == 0:
                 array[non_pawn_index] = king_array[int(is_white_piece)]
