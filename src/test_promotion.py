@@ -89,7 +89,20 @@ def lookup_map() -> Dict[str, int]:
     return promotion.create_lookup_map(8, 5)
 
 
+def test_create_lookup_map(lookup_map: Dict[str, int]) -> None:
+    assert lookup_map["00000000"] == 0
+    assert lookup_map["00001111"] == 35
+    assert lookup_map["00002222"] == 55
+    assert lookup_map["00003333"] == 65
+    assert lookup_map["00004444"] == 69
+    assert lookup_map["11111111"] == 330
+    assert lookup_map["22222222"] == 450
+    assert lookup_map["33333333"] == 486
+    assert lookup_map["44444444"] == 494
+
+
 def test_enumerate_promotions(lookup_map: Dict[str, int]) -> None:
+    assert promotion.enumerate_promotions("", 8, lookup_map) == 0
     assert promotion.enumerate_promotions("1111", 4, lookup_map) == 35
     assert promotion.enumerate_promotions("2222", 4, lookup_map) == 55
     assert promotion.enumerate_promotions("3333", 4, lookup_map) == 65

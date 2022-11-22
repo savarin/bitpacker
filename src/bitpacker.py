@@ -10,7 +10,7 @@ def set_piece_position(
     if input_array is None:
         input_array = [None] * piece_count
 
-    array_index, pieces_added = 0, 0
+    input_index, pieces_added = 0, 0
 
     while positions:
         # Stop when number of pieces reached.
@@ -18,20 +18,20 @@ def set_piece_position(
             break
 
         # Otherwise add positions to null slots in array.
-        if input_array[array_index] is None:
+        if input_array[input_index] is None:
             position = positions.pop(0)
-            input_array[array_index] = position[0]
+            input_array[input_index] = position[0]
             pieces_added += 1
 
-        array_index += 1
+        input_index += 1
 
-    array: List[int] = []
+    output_array: List[int] = []
 
     for item in input_array:
         if item is None:
             assert opponent_king_position is not None
-            array.append(opponent_king_position)
+            output_array.append(opponent_king_position)
         else:
-            array.append(item)
+            output_array.append(item)
 
-    return array, positions
+    return output_array, positions
