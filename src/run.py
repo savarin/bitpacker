@@ -156,7 +156,6 @@ def convert_positions(
     en_passant_target: str = "-",
 ) -> Tuple[List[Optional[int]], int, int]:
     array: List[Optional[int]] = [None] * 32
-    king_array: List[Optional[int]] = [None, None]
 
     promotions_by_piece: DefaultDict[
         str, List[Tuple[int, str]]
@@ -170,53 +169,29 @@ def convert_positions(
         1, positions_by_piece["k"], None
     )
 
-    king_array = white_king_array + black_king_array
-    array = king_array + array[2:]
+    array[0] = white_king_array[0]
+    array[1] = black_king_array[0]
     assert len(white_king_promotions) == 0 and len(black_king_promotions) == 0
 
     # NEXT: Isolate changes to one piece at a time and merge at the end.
-    for non_pawn_piece in ["Q", "q", "R", "r", "B", "b", "N", "n"]:
-        non_pawn_index = common.PIECES.index(non_pawn_piece)
-        non_pawn_positions = positions_by_piece.get(non_pawn_piece, [])
-        is_white_piece = non_pawn_piece.isupper()
+    for piece in ["Q", "q", "R", "r", "B", "b", "N", "n"]:
+        index = common.PIECES.index(piece)
+        positions = positions_by_piece.get(piece, [])
 
-        if non_pawn_piece.lower() == "k":
-            assert len(non_pawn_positions) > 0
-            array[non_pawn_index] = non_pawn_positions[0][0]
-            king_array["Kk".index(non_pawn_piece)] = non_pawn_positions[0][0]
+        is_queen = piece.lower() == "q"
+        is_white_piece = piece.isupper()
 
-        elif non_pawn_piece.lower() == "q":
-            if len(non_pawn_positions) == 0:
-                array[non_pawn_index] = king_array[int(is_white_piece)]
+        individual_array, promotions = bitpacker.set_piece_position(
+            1 if is_queen else 2, positions, array[int(is_white_piece)]
+        )
 
-            else:
-                for i, non_pawn_position in enumerate(non_pawn_positions):
-                    if i < 1:
-                        array[non_pawn_index] = non_pawn_position[0]
-                        continue
+        for i, position in enumerate(individual_array):
+            array[index + i] = position
 
-                    promotions_by_piece[non_pawn_piece].append(non_pawn_position)
+        promotions_by_piece[piece] = promotions
 
-        else:
-            if non_pawn_positions is None:
-                array[non_pawn_index] = king_array[int(is_white_piece)]
-                array[non_pawn_index + 1] = king_array[int(is_white_piece)]
-
-            elif len(non_pawn_positions) == 1:
-                array[non_pawn_index] = non_pawn_positions[0][0]
-                array[non_pawn_index + 1] = king_array[int(is_white_piece)]
-                continue
-
-            else:
-                for i, non_pawn_position in enumerate(non_pawn_positions):
-                    if i < 2:
-                        array[non_pawn_index + i] = non_pawn_position[0]
-                        continue
-
-                    promotions_by_piece[non_pawn_piece].append(non_pawn_position)
-
-    assert king_array[0] is not None and king_array[1] is not None
-    non_optional_king_array: List[int] = [king_array[0], king_array[1]]
+    assert array[0] is not None and array[1] is not None
+    non_optional_king_array: List[int] = [array[0], array[1]]
 
     # TODO: Fix substitution when require ordered rook positions.
     castling_ability_insertions = castling.convert_castling_availability(

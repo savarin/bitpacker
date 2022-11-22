@@ -5,10 +5,10 @@ def set_piece_position(
     piece_count: int,
     positions: List[Tuple[int, str]],
     opponent_king_position: Optional[int],
-    array: Optional[List[Optional[int]]] = None,
-) -> Tuple[List[Optional[int]], List[Tuple[int, str]]]:
-    if array is None:
-        array = [None] * piece_count
+    input_array: Optional[List[Optional[int]]] = None,
+) -> Tuple[List[int], List[Tuple[int, str]]]:
+    if input_array is None:
+        input_array = [None] * piece_count
 
     array_index, pieces_added = 0, 0
 
@@ -18,15 +18,20 @@ def set_piece_position(
             break
 
         # Otherwise add positions to null slots in array.
-        if array[array_index] is None:
+        if input_array[array_index] is None:
             position = positions.pop(0)
-            array[array_index] = position[0]
+            input_array[array_index] = position[0]
             pieces_added += 1
 
         array_index += 1
 
-    for i in range(len(array)):
-        if array[i] is None:
-            array[i] = opponent_king_position
+    array: List[int] = []
+
+    for item in input_array:
+        if item is None:
+            assert opponent_king_position is not None
+            array.append(opponent_king_position)
+        else:
+            array.append(item)
 
     return array, positions
