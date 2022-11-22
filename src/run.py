@@ -5,6 +5,7 @@ import itertools
 import colorama
 import chess
 
+import castling
 import promotion
 
 
@@ -181,28 +182,6 @@ def convert_to_pawn_positions(
     return array, white_lookup, black_lookup
 
 
-def convert_castling_availability(
-    castling_availability: str, king_array: List[int]
-) -> List[Tuple[int, int]]:
-    if castling_availability == "-":
-        return []
-
-    rook_index: Dict[str, int] = {
-        "q": PIECES.index("r") + 1,
-        "k": PIECES.index("r"),
-        "Q": PIECES.index("R") + 1,
-        "K": PIECES.index("R"),
-    }
-
-    insertions: List[Tuple[int, int]] = []
-
-    for piece in castling_availability:
-        is_black_piece = piece.islower()
-        insertions.append((rook_index[piece], king_array[int(is_black_piece)]))
-
-    return insertions
-
-
 def convert_positions(
     positions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
     castling_availability: str = "-",
@@ -261,7 +240,7 @@ def convert_positions(
     non_optional_king_array: List[int] = [king_array[0], king_array[1]]
 
     # TODO: Fix substitution when require ordered rook positions.
-    castling_ability_insertions = convert_castling_availability(
+    castling_ability_insertions = castling.convert_castling_availability(
         castling_availability, non_optional_king_array
     )
 
