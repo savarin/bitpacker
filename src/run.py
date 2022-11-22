@@ -1,16 +1,13 @@
-from typing import DefaultDict, Dict, List, Optional, Tuple
+from typing import DefaultDict, List, Optional, Tuple
 import collections
-import itertools
 
 import colorama
 import chess
 
 import castling
+import common
+import en_passant
 import promotion
-
-
-FILES = "abcdefgh"
-PIECES = "KkQqR.r.B.b.N.n.P.......p......."
 
 
 def convert_board_to_positions(
@@ -27,45 +24,11 @@ def convert_board_to_positions(
                 continue
 
             position_int = i * 8 + j
-            position_str = FILES[j] + str(i + 1)
+            position_str = common.FILES[j] + str(i + 1)
 
             positions_by_piece[piece].append((position_int, position_str))
 
     return positions_by_piece
-
-
-def convert_en_passant_target_to_position(en_passant_target: str) -> Tuple[str, str]:
-    assert en_passant_target[0] in FILES
-
-    if en_passant_target[1] == "3":
-        return en_passant_target[0] + "4", "P"
-
-    elif en_passant_target[1] == "6":
-        return en_passant_target[0] + "5", "p"
-
-    raise Exception("Exhaustive switch error.")
-
-
-def convert_en_passant_position(
-    en_passant_position: str, en_passant_piece: str, king_array: List[int]
-) -> List[Tuple[int, int]]:
-    assert en_passant_position[0] in FILES
-
-    if en_passant_position[1] == "4":
-        index = PIECES.index("P")
-
-    elif en_passant_position[1] == "5":
-        index = PIECES.index("p")
-
-    else:
-        raise Exception("Exhaustive switch error.")
-
-    return [
-        (
-            index + FILES.index(en_passant_position[0]),
-            king_array["Pp".index(en_passant_piece)],
-        )
-    ]
 
 
 def convert_to_pawn_positions(
@@ -79,16 +42,17 @@ def convert_to_pawn_positions(
 
     # NEXT: Simplify logic to enable generation for both sides.
     if en_passant_target != "-":
-        en_passant_position, en_passant_piece = convert_en_passant_target_to_position(
-            en_passant_target
-        )
+        (
+            en_passant_position,
+            en_passant_piece,
+        ) = en_passant.convert_en_passant_target_to_position(en_passant_target)
         positions_by_piece[en_passant_piece] = [
             position
             for position in positions_by_piece[en_passant_piece]
             if position[1] != en_passant_position
         ]
 
-        en_passant_insertions = convert_en_passant_position(
+        en_passant_insertions = en_passant.convert_en_passant_position(
             en_passant_position, en_passant_piece, king_array
         )
         array[en_passant_insertions[0][0]] = en_passant_insertions[0][1]
@@ -154,7 +118,10 @@ def convert_to_pawn_positions(
         + black_captured_positions
     )
 
-    white_pawn_index, black_pawn_index = PIECES.index("P"), PIECES.index("p")
+    white_pawn_index, black_pawn_index = (
+        common.PIECES.index("P"),
+        common.PIECES.index("p"),
+    )
 
     while white_pawn_positions:
         if array[white_pawn_index] is None:
@@ -196,7 +163,7 @@ def convert_positions(
 
     # NEXT: Isolate changes to one piece at a time and merge at the end.
     for non_pawn_piece in ["K", "k", "Q", "q", "R", "r", "B", "b", "N", "n"]:
-        non_pawn_index = PIECES.index(non_pawn_piece)
+        non_pawn_index = common.PIECES.index(non_pawn_piece)
         non_pawn_positions = positions_by_piece.get(non_pawn_piece, [])
         is_white_piece = non_pawn_piece.isupper()
 

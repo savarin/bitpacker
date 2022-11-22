@@ -1,7 +1,6 @@
 from typing import Dict, List, Tuple
 
-
-PIECES = "KkQqR.r.B.b.N.n.P.......p......."
+import common
 
 
 def convert_castling_availability(
@@ -11,10 +10,10 @@ def convert_castling_availability(
         return []
 
     rook_index: Dict[str, int] = {
-        "q": PIECES.index("r") + 1,
-        "k": PIECES.index("r"),
-        "Q": PIECES.index("R") + 1,
-        "K": PIECES.index("R"),
+        "q": common.PIECES.index("r") + 1,
+        "k": common.PIECES.index("r"),
+        "Q": common.PIECES.index("R") + 1,
+        "K": common.PIECES.index("R"),
     }
 
     insertions: List[Tuple[int, int]] = []
