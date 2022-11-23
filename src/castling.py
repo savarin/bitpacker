@@ -5,7 +5,7 @@ def parse_castling_availability(
     castling_availability: str,
     positions: List[Tuple[int, str]],
     king_array: List[int],
-    is_white_rook: bool,
+    is_white: bool,
 ) -> Tuple[List[Optional[int]], List[Tuple[int, str]]]:
     array: List[Optional[int]] = [None] * 2
 
@@ -17,11 +17,11 @@ def parse_castling_availability(
     }
 
     for rook in castling_availability:
-        if is_white_rook and rook.isupper():
+        if is_white and rook.isupper():
             array["QK".index(rook)] = king_array[0]
             positions.remove(starting_position_by_rook[rook])
 
-        elif not is_white_rook and rook.islower():
+        elif not is_white and rook.islower():
             array["qk".index(rook)] = king_array[1]
             positions.remove(starting_position_by_rook[rook])
 

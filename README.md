@@ -1,9 +1,14 @@
 # bitpacker
 
-bitpacks chess positions
+bitpacks chess positions.
 
-[try me!](https://replit.com/@savarin/bitpacker?v=1)
+## Installation
+
+Running the code requires installation of two packages.
 
 ```shell
+pip install chess colorama
 python src/run.py
 ```
+
+Otherwise try me on [replit](https://replit.com/@savarin/bitpacker?v=1).
