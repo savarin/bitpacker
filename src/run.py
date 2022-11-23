@@ -32,6 +32,62 @@ def convert_board_to_positions(
     return positions_by_piece
 
 
+def set_non_pawn_positions(
+    positions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
+    castling_availability: str = "-",
+    en_passant_target: str = "-",
+) -> Tuple[List[int], DefaultDict[str, List[Tuple[int, str]]]]:
+    array: List[Optional[int]] = [None] * 16
+    promotions_by_piece: DefaultDict[
+        str, List[Tuple[int, str]]
+    ] = collections.defaultdict(list)
+
+    # Check king as always present.
+    for i, piece in enumerate("Kk"):
+        assert piece in positions_by_piece
+        king_array, king_promotions = bitpacker.set_piece_position(
+            1, positions_by_piece[piece], None
+        )
+
+        array[i] = king_array[0]
+        assert len(king_promotions) == 0
+
+    # Check rook for castling availability.
+    rook_arrays: List[List[int]] = []
+
+    for i, piece in enumerate("Rr"):
+        rook_array, rook_positions = castling.parse_castling_availability(
+            castling_availability,
+            positions_by_piece.get(piece, []),
+            array[:2],
+            not bool(i),
+        )
+
+        positions_by_piece[piece] = rook_positions
+        rook_arrays.append(rook_array)
+
+    for i, piece in enumerate("QqRrBbNn"):
+        positions = positions_by_piece.get(piece, [])
+        input_array = None
+
+        if piece in "Rr":
+            input_array = rook_arrays["Rr".index(piece)]
+
+        is_queen = piece.lower() == "q"
+        is_white = i % 2 == 0
+
+        output_array, promotions = bitpacker.set_piece_position(
+            1 if is_queen else 2, positions, array[int(is_white)], input_array
+        )
+
+        for j, position in enumerate(output_array):
+            array[common.PIECES.index(piece) + j] = position
+
+        promotions_by_piece[piece] = promotions
+
+    return [item for item in array if item is not None], promotions_by_piece
+
+
 def set_pawn_positions(
     positions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
     promotions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
@@ -148,62 +204,6 @@ def set_pawn_positions(
     )
 
     return [item for item in array if item is not None], white_lookup, black_lookup
-
-
-def set_non_pawn_positions(
-    positions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
-    castling_availability: str = "-",
-    en_passant_target: str = "-",
-) -> Tuple[List[int], DefaultDict[str, List[Tuple[int, str]]]]:
-    array: List[Optional[int]] = [None] * 16
-    promotions_by_piece: DefaultDict[
-        str, List[Tuple[int, str]]
-    ] = collections.defaultdict(list)
-
-    # Check king as always present.
-    for i, piece in enumerate("Kk"):
-        assert piece in positions_by_piece
-        king_array, king_promotions = bitpacker.set_piece_position(
-            1, positions_by_piece[piece], None
-        )
-
-        array[i] = king_array[0]
-        assert len(king_promotions) == 0
-
-    # Check rook for castling availability.
-    rook_arrays: List[List[int]] = []
-
-    for i, piece in enumerate("Rr"):
-        rook_array, rook_positions = castling.parse_castling_availability(
-            castling_availability,
-            positions_by_piece.get(piece, []),
-            array[:2],
-            not bool(i),
-        )
-
-        positions_by_piece[piece] = rook_positions
-        rook_arrays.append(rook_array)
-
-    for i, piece in enumerate("QqRrBbNn"):
-        positions = positions_by_piece.get(piece, [])
-        input_array = None
-
-        if piece in "Rr":
-            input_array = rook_arrays["Rr".index(piece)]
-
-        is_queen = piece.lower() == "q"
-        is_white = i % 2 == 0
-
-        output_array, promotions = bitpacker.set_piece_position(
-            1 if is_queen else 2, positions, array[int(is_white)], input_array
-        )
-
-        for j, position in enumerate(output_array):
-            array[common.PIECES.index(piece) + j] = position
-
-        promotions_by_piece[piece] = promotions
-
-    return [item for item in array if item is not None], promotions_by_piece
 
 
 def convert(board: chess.Board) -> Tuple[List[int], int, int]:
