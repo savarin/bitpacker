@@ -29,8 +29,8 @@ def set_piece_position(
     input_index, pieces_added = 0, 0
 
     while positions:
-        # Stop when number of pieces reached.
-        if pieces_added == piece_count:
+        # Stop when number of pieces reached or no more empty slots.
+        if pieces_added == piece_count or input_index == len(input_array):
             break
 
         # Otherwise add positions to empty slots in array.

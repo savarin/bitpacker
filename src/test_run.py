@@ -56,11 +56,11 @@ def test_convert_with_promotion() -> None:
     board.push_san("d5")
     board.push_san("fxg7")
     board.push_san("d4")
-    board.push_san("gxh8=Q")
+    board.push_san("gxh8=R")
     array, promotions_enumeration = run.convert(board)
 
     assert array[:16] == [4, 60, 3, 59, 4, 4, 60, 4, 2, 5, 58, 61, 1, 6, 57, 62]
     assert array[16:] == [8, 9, 10, 12, 13, 14, 15, 63, 27, 48, 49, 50, 55, 4, 4, 4]
 
-    assert promotions_enumeration[0] == 4
+    assert promotions_enumeration[0] == 3
     assert promotions_enumeration[1] == 0

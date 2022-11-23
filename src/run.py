@@ -64,14 +64,8 @@ def expose_board(board: chess.Board, is_binary: bool) -> None:
         black_promotions_enumeration = f"{promotions_enumeration[1]:{0}{3}}"
 
     print("\n" + str(board) + "\n")
-    print(
-        colorama.Fore.BLUE
-        + non_pawns
-    )
-    print(
-        colorama.Fore.BLUE
-        + pawns
-    )
+    print(colorama.Fore.BLUE + non_pawns)
+    print(colorama.Fore.BLUE + pawns)
     print(colorama.Fore.RED + white_promotions_enumeration)
     print(colorama.Fore.RED + black_promotions_enumeration + "\n")
 
@@ -80,10 +74,12 @@ if __name__ == "__main__":
     colorama.init(autoreset=True)
     is_binary = True
 
-    print("""\
+    print(
+        """\
 To restart the game, type 'restart'.
 To switch between binary and ints, type 'switch'.
-To leave the game, type 'exit'.""")
+To leave the game, type 'exit'."""
+    )
 
     board = chess.Board()
     expose_board(board, is_binary)
