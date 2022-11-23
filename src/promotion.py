@@ -19,8 +19,8 @@ def generate_uniques_cartesian(length: int, items: List[str]) -> List[str]:
     if len(items) == 0:
         return []
 
-    distincts = list(itertools.product(items, repeat=length))
-    uniques = set(["".join(sorted(item)) for item in distincts])
+    non_uniques = list(itertools.product(items, repeat=length))
+    uniques = set(["".join(sorted(item)) for item in non_uniques])
     return sorted(uniques)
 
 
