@@ -32,16 +32,9 @@ def create_lookup_map(length: int, member_count: int) -> Dict[str, int]:
 
 
 def enumerate_promotions(
-    promoted_pieces: str,
-    base_case_count: int,
-    promoted_pieces_map: Optional[Dict[str, int]] = None,
+    promotions_key: str, promoted_pieces_map: Optional[Dict[str, int]] = None,
 ):
-    if len(promoted_pieces) == 0:
-        return 0
-
-    piece_count = len(promoted_pieces) + base_case_count
-
     if promoted_pieces_map is None:
-        promoted_pieces_map = create_lookup_map(piece_count, 5)
+        promoted_pieces_map = create_lookup_map(len(promotions_key), 5)
 
-    return promoted_pieces_map["0" * base_case_count + promoted_pieces]
+    return promoted_pieces_map[promotions_key]

@@ -83,9 +83,43 @@ def set_non_pawn_positions(
         for j, position in enumerate(output_array):
             array[common.PIECES.index(piece) + j] = position
 
-        promotions_by_piece[piece] = promotions
+        if len(promotions) > 0:
+            promotions_by_piece[piece] = promotions
 
     return [item for item in array if item is not None], promotions_by_piece
+
+
+def reorder_pawn_positions(
+    pawn_positions: List[Tuple[int, str]],
+    promotions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
+    is_white: bool,
+) -> Tuple[List[Tuple[int, str]], Optional[str]]:
+    positions: List[Tuple[int, str]] = []
+    promotions_key = ""
+
+    promotion_map = {
+        "n": "1",
+        "b": "2",
+        "r": "3",
+        "q": "4",
+    }
+
+    positions += sorted(pawn_positions)
+    promotions_key += "0" * len(pawn_positions)
+
+    for piece, promoted_positions in sorted(
+        promotions_by_piece.items(), key=lambda x: promotion_map[x[0].lower()]
+    ):
+        if is_white != piece.isupper():
+            continue
+
+        positions += sorted(promoted_positions)
+        promotions_key += promotion_map[piece.lower()] * len(promoted_positions)
+
+    return (
+        positions,
+        promotions_key if len(promotions_key) > len(pawn_positions) else None,
+    )
 
 
 def set_pawn_positions(
@@ -93,120 +127,38 @@ def set_pawn_positions(
     promotions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
     king_array: List[int],
     en_passant_target: str,
-) -> Tuple[List[int], int, int]:
-    array: List[Optional[int]] = [None] * 16
-    en_passant_piece = None
+) -> Tuple[List[int], List[int]]:
+    array: List[int] = []
+    promotions_enumeration: List[int] = []
 
-    # NEXT: Simplify logic to enable generation for both sides.
-    if en_passant_target != "-":
-        (
-            en_passant_position,
-            en_passant_piece,
-        ) = en_passant.convert_en_passant_target_to_position(en_passant_target)
-        positions_by_piece[en_passant_piece] = [
-            position
-            for position in positions_by_piece[en_passant_piece]
-            if position[1] != en_passant_position
-        ]
+    for i, piece in enumerate("Pp"):
+        is_white = i % 2 == 0
 
-        en_passant_insertions = en_passant.convert_en_passant_position(
-            en_passant_position, en_passant_piece, king_array
+        input_array, positions = en_passant.parse_en_passant_target(
+            en_passant_target, positions_by_piece.get(piece, []), king_array, is_white,
         )
-        array[en_passant_insertions[0][0] - 16] = en_passant_insertions[0][1]
 
-    promotion_map = {
-        "q": "1",
-        "r": "2",
-        "b": "3",
-        "n": "4",
-    }
+        positions, promotions_key = reorder_pawn_positions(
+            positions, promotions_by_piece, is_white,
+        )
 
-    white_promoted_pieces, black_promoted_pieces = [], []
+        output_array, _ = bitpacker.set_piece_position(
+            len(positions), positions, king_array[int(is_white)], input_array
+        )
 
-    for piece, positions in promotions_by_piece.items():
-        if piece.isupper():
-            white_promoted_pieces += [piece] * len(positions)
+        array += output_array
+
+        if promotions_key is None:
+            promotions_enumeration.append(0)
         else:
-            black_promoted_pieces += [piece] * len(positions)
+            promotions_enumeration.append(
+                promotion.enumerate_promotions(promotions_key)
+            )
 
-    white_promoted_pieces = sorted(
-        white_promoted_pieces, key=lambda x: promotion_map[x.lower()]
-    )
-    black_promoted_pieces = sorted(
-        black_promoted_pieces, key=lambda x: promotion_map[x.lower()]
-    )
-
-    white_promoted_positions, black_promoted_positions = [], []
-
-    for white_promoted_piece in white_promoted_pieces:
-        white_promoted_positions += promotions_by_piece[white_promoted_piece]
-
-    for black_promoted_piece in black_promoted_pieces:
-        black_promoted_positions += promotions_by_piece[black_promoted_piece]
-
-    white_captured_count = (
-        8
-        - len(positions_by_piece.get("P", []))
-        - len(white_promoted_pieces)
-        - int(en_passant_piece == "P")
-    )
-    black_captured_count = (
-        8
-        - len(positions_by_piece.get("p", []))
-        - len(black_promoted_pieces)
-        - int(en_passant_piece == "p")
-    )
-
-    white_captured_positions = [
-        (king_array[1], "") for _ in range(white_captured_count)
-    ]
-    black_captured_positions = [
-        (king_array[0], "") for _ in range(black_captured_count)
-    ]
-
-    white_pawn_positions = (
-        positions_by_piece.get("P", [])
-        + white_promoted_positions
-        + white_captured_positions
-    )
-    black_pawn_positions = (
-        positions_by_piece.get("p", [])
-        + black_promoted_positions
-        + black_captured_positions
-    )
-
-    white_pawn_index, black_pawn_index = (
-        common.PIECES.index("P") - 16,
-        common.PIECES.index("p") - 16,
-    )
-
-    while white_pawn_positions:
-        if array[white_pawn_index] is None:
-            white_pawn_position = white_pawn_positions.pop(0)
-            array[white_pawn_index] = white_pawn_position[0]
-
-        white_pawn_index += 1
-
-    while black_pawn_positions:
-        if array[black_pawn_index] is None:
-            black_pawn_position = black_pawn_positions.pop(0)
-            array[black_pawn_index] = black_pawn_position[0]
-
-        black_pawn_index += 1
-
-    white_lookup = promotion.enumerate_promotions(
-        "".join([promotion_map[piece.lower()] for piece in white_promoted_pieces]),
-        len(positions_by_piece.get("P", [])),
-    )
-    black_lookup = promotion.enumerate_promotions(
-        "".join([promotion_map[piece.lower()] for piece in black_promoted_pieces]),
-        len(positions_by_piece.get("p", [])),
-    )
-
-    return [item for item in array if item is not None], white_lookup, black_lookup
+    return array, promotions_enumeration
 
 
-def convert(board: chess.Board) -> Tuple[List[int], int, int]:
+def convert(board: chess.Board) -> Tuple[List[int], List[int]]:
     positions_by_piece = convert_board_to_positions(board)
 
     board_details = board.fen().split(" ")[1:]
@@ -216,18 +168,18 @@ def convert(board: chess.Board) -> Tuple[List[int], int, int]:
     non_pawn_array, promotions_by_piece = set_non_pawn_positions(
         positions_by_piece, castling_availability, en_passant_target
     )
-    pawn_array, white_lookup, black_lookup = set_pawn_positions(
+    pawn_array, promotions_enumeration = set_pawn_positions(
         positions_by_piece,
         promotions_by_piece,
         [item for item in non_pawn_array[:2] if item is not None],
         en_passant_target,
     )
 
-    return non_pawn_array + pawn_array, white_lookup, black_lookup
+    return non_pawn_array + pawn_array, promotions_enumeration
 
 
 def expose_board(board: chess.Board) -> None:
-    array, white_lookup, black_lookup = convert(board)
+    array, promotions_enumeration = convert(board)
 
     print("\n" + str(board) + "\n")
     print(
@@ -238,8 +190,8 @@ def expose_board(board: chess.Board) -> None:
         colorama.Fore.BLUE
         + hex(int("".join([format(item, "06b") for item in array[16:]]), 2))
     )
-    print(colorama.Fore.RED + format(white_lookup, "#011b"))
-    print(colorama.Fore.RED + format(black_lookup, "#011b") + "\n")
+    print(colorama.Fore.RED + format(promotions_enumeration[0], "#011b"))
+    print(colorama.Fore.RED + format(promotions_enumeration[0], "#011b") + "\n")
 
 
 if __name__ == "__main__":

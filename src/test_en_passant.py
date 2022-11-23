@@ -1,49 +1,83 @@
+from typing import List, Optional
 import pytest
 
 import en_passant
 
 
-def test_convert_en_passant_target_to_position() -> None:
-    assert en_passant.convert_en_passant_target_to_position("a3") == ("a4", "P")
-    assert en_passant.convert_en_passant_target_to_position("b3") == ("b4", "P")
-    assert en_passant.convert_en_passant_target_to_position("c3") == ("c4", "P")
-    assert en_passant.convert_en_passant_target_to_position("d3") == ("d4", "P")
-    assert en_passant.convert_en_passant_target_to_position("e3") == ("e4", "P")
-    assert en_passant.convert_en_passant_target_to_position("f3") == ("f4", "P")
-    assert en_passant.convert_en_passant_target_to_position("g3") == ("g4", "P")
-    assert en_passant.convert_en_passant_target_to_position("h3") == ("h4", "P")
-    assert en_passant.convert_en_passant_target_to_position("a6") == ("a5", "p")
-    assert en_passant.convert_en_passant_target_to_position("b6") == ("b5", "p")
-    assert en_passant.convert_en_passant_target_to_position("c6") == ("c5", "p")
-    assert en_passant.convert_en_passant_target_to_position("d6") == ("d5", "p")
-    assert en_passant.convert_en_passant_target_to_position("e6") == ("e5", "p")
-    assert en_passant.convert_en_passant_target_to_position("f6") == ("f5", "p")
-    assert en_passant.convert_en_passant_target_to_position("g6") == ("g5", "p")
-    assert en_passant.convert_en_passant_target_to_position("h6") == ("h5", "p")
+def set_up_array(index: int, value: int) -> List[Optional[int]]:
+    array: List[Optional[int]] = [None] * 8
+    array[index] = value
 
-    with pytest.raises(Exception):
-        en_passant.convert_en_passant_target_to_position("a1")
+    return array
 
 
-def test_convert_en_passant_position() -> None:
+def test_parse_en_passant_target() -> None:
     king_array = [4, 60]
 
-    assert en_passant.convert_en_passant_position("a4", "P", king_array) == [(16, 4)]
-    assert en_passant.convert_en_passant_position("b4", "P", king_array) == [(17, 4)]
-    assert en_passant.convert_en_passant_position("c4", "P", king_array) == [(18, 4)]
-    assert en_passant.convert_en_passant_position("d4", "P", king_array) == [(19, 4)]
-    assert en_passant.convert_en_passant_position("e4", "P", king_array) == [(20, 4)]
-    assert en_passant.convert_en_passant_position("f4", "P", king_array) == [(21, 4)]
-    assert en_passant.convert_en_passant_position("g4", "P", king_array) == [(22, 4)]
-    assert en_passant.convert_en_passant_position("h4", "P", king_array) == [(23, 4)]
-    assert en_passant.convert_en_passant_position("a5", "p", king_array) == [(24, 60)]
-    assert en_passant.convert_en_passant_position("b5", "p", king_array) == [(25, 60)]
-    assert en_passant.convert_en_passant_position("c5", "p", king_array) == [(26, 60)]
-    assert en_passant.convert_en_passant_position("d5", "p", king_array) == [(27, 60)]
-    assert en_passant.convert_en_passant_position("e5", "p", king_array) == [(28, 60)]
-    assert en_passant.convert_en_passant_position("f5", "p", king_array) == [(29, 60)]
-    assert en_passant.convert_en_passant_position("g5", "p", king_array) == [(30, 60)]
-    assert en_passant.convert_en_passant_position("h5", "p", king_array) == [(31, 60)]
+    assert en_passant.parse_en_passant_target("a3", [(24, "a4")], [4, 60], True) == (
+        set_up_array(0, 4),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("b3", [(25, "b4")], [4, 60], True) == (
+        set_up_array(1, 4),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("c3", [(26, "c4")], [4, 60], True) == (
+        set_up_array(2, 4),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("d3", [(27, "d4")], [4, 60], True) == (
+        set_up_array(3, 4),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("e3", [(28, "e4")], [4, 60], True) == (
+        set_up_array(4, 4),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("f3", [(29, "f4")], [4, 60], True) == (
+        set_up_array(5, 4),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("g3", [(30, "g4")], [4, 60], True) == (
+        set_up_array(6, 4),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("h3", [(31, "h4")], [4, 60], True) == (
+        set_up_array(7, 4),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("a6", [(32, "a5")], [4, 60], False) == (
+        set_up_array(0, 60),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("b6", [(33, "b5")], [4, 60], False) == (
+        set_up_array(1, 60),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("c6", [(34, "c5")], [4, 60], False) == (
+        set_up_array(2, 60),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("d6", [(35, "d5")], [4, 60], False) == (
+        set_up_array(3, 60),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("e6", [(36, "e5")], [4, 60], False) == (
+        set_up_array(4, 60),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("f6", [(37, "f5")], [4, 60], False) == (
+        set_up_array(5, 60),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("g6", [(38, "g5")], [4, 60], False) == (
+        set_up_array(6, 60),
+        [],
+    )
+    assert en_passant.parse_en_passant_target("h6", [(39, "h5")], [4, 60], False) == (
+        set_up_array(7, 60),
+        [],
+    )
 
-    with pytest.raises(Exception):
-        en_passant.convert_en_passant_position("a1", "p", king_array)
+    with pytest.raises(ValueError):
+        assert en_passant.parse_en_passant_target("a3", [(32, "a5")], king_array, True)

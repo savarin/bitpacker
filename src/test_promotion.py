@@ -102,12 +102,12 @@ def test_create_lookup_map(lookup_map: Dict[str, int]) -> None:
 
 
 def test_enumerate_promotions(lookup_map: Dict[str, int]) -> None:
-    assert promotion.enumerate_promotions("", 8, lookup_map) == 0
-    assert promotion.enumerate_promotions("1111", 4, lookup_map) == 35
-    assert promotion.enumerate_promotions("2222", 4, lookup_map) == 55
-    assert promotion.enumerate_promotions("3333", 4, lookup_map) == 65
-    assert promotion.enumerate_promotions("4444", 4, lookup_map) == 69
-    assert promotion.enumerate_promotions("11111111", 0, lookup_map) == 330
-    assert promotion.enumerate_promotions("22222222", 0, lookup_map) == 450
-    assert promotion.enumerate_promotions("33333333", 0, lookup_map) == 486
-    assert promotion.enumerate_promotions("44444444", 0, lookup_map) == 494
+    assert promotion.enumerate_promotions("00000000", lookup_map) == 0
+    assert promotion.enumerate_promotions("00001111", lookup_map) == 35
+    assert promotion.enumerate_promotions("00002222", lookup_map) == 55
+    assert promotion.enumerate_promotions("00003333", lookup_map) == 65
+    assert promotion.enumerate_promotions("00004444", lookup_map) == 69
+    assert promotion.enumerate_promotions("11111111", lookup_map) == 330
+    assert promotion.enumerate_promotions("22222222", lookup_map) == 450
+    assert promotion.enumerate_promotions("33333333", lookup_map) == 486
+    assert promotion.enumerate_promotions("44444444", lookup_map) == 494

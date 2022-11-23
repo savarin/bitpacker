@@ -1,37 +1,44 @@
-from typing import List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import common
 
 
-def convert_en_passant_target_to_position(en_passant_target: str) -> Tuple[str, str]:
-    assert en_passant_target[0] in common.FILES
+def parse_en_passant_target(
+    en_passant_target: str,
+    positions: List[Tuple[int, str]],
+    king_array: List[int],
+    is_white: bool,
+) -> Tuple[List[Optional[int]], List[Tuple[int, str]]]:
+    array: List[Optional[int]] = [None] * 8
 
-    if en_passant_target[1] == "3":
-        return en_passant_target[0] + "4", "P"
+    if en_passant_target == "-":
+        return array, positions
 
-    elif en_passant_target[1] == "6":
-        return en_passant_target[0] + "5", "p"
+    current_position_by_pawn: Dict[str, Tuple[int, str]] = {
+        "a3": (24, "a4"),
+        "b3": (25, "b4"),
+        "c3": (26, "c4"),
+        "d3": (27, "d4"),
+        "e3": (28, "e4"),
+        "f3": (29, "f4"),
+        "g3": (30, "g4"),
+        "h3": (31, "h4"),
+        "a6": (32, "a5"),
+        "b6": (33, "b5"),
+        "c6": (34, "c5"),
+        "d6": (35, "d5"),
+        "e6": (36, "e5"),
+        "f6": (37, "f5"),
+        "g6": (38, "g5"),
+        "h6": (39, "h5"),
+    }
 
-    raise Exception("Exhaustive switch error.")
+    if is_white and en_passant_target[1] == "3":
+        array[common.FILES.index(en_passant_target[0])] = king_array[0]
+        positions.remove(current_position_by_pawn[en_passant_target])
 
+    elif not is_white and en_passant_target[1] == "6":
+        array[common.FILES.index(en_passant_target[0])] = king_array[1]
+        positions.remove(current_position_by_pawn[en_passant_target])
 
-def convert_en_passant_position(
-    en_passant_position: str, en_passant_piece: str, king_array: List[int]
-) -> List[Tuple[int, int]]:
-    assert en_passant_position[0] in common.FILES
-
-    if en_passant_position[1] == "4":
-        index = common.PIECES.index("P")
-
-    elif en_passant_position[1] == "5":
-        index = common.PIECES.index("p")
-
-    else:
-        raise Exception("Exhaustive switch error.")
-
-    return [
-        (
-            index + common.FILES.index(en_passant_position[0]),
-            king_array["Pp".index(en_passant_piece)],
-        )
-    ]
+    return array, positions
