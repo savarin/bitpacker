@@ -39,7 +39,7 @@ def test_convert_with_capture() -> None:
     board.push_san("Rxh7")
     array, white_lookup, black_lookup = run.convert(board)
 
-    assert array[:16] == [4, 60, 60, 59, 4, 4, 55, 60, 2, 5, 58, 61, 1, 6, 57, 62]
+    assert array[:16] == [4, 60, 60, 59, 4, 4, 60, 55, 2, 5, 58, 61, 1, 6, 57, 62]
     assert array[16:] == [8, 9, 10, 12, 13, 14, 15, 27, 32, 35, 49, 50, 52, 53, 54, 4]
 
     assert white_lookup == 0
@@ -59,7 +59,7 @@ def test_convert_with_promotion() -> None:
     board.push_san("gxh8=Q")
     array, white_lookup, black_lookup = run.convert(board)
 
-    assert array[:16] == [4, 60, 3, 59, 4, 4, 56, 60, 2, 5, 58, 61, 1, 6, 57, 62]
+    assert array[:16] == [4, 60, 3, 59, 4, 4, 60, 4, 2, 5, 58, 61, 1, 6, 57, 62]
     assert array[16:] == [8, 9, 10, 12, 13, 14, 15, 63, 27, 48, 49, 50, 55, 4, 4, 4]
 
     assert white_lookup == 1

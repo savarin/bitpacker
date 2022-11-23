@@ -32,13 +32,13 @@ def convert_board_to_positions(
     return positions_by_piece
 
 
-def convert_to_pawn_positions(
+def set_pawn_positions(
     positions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
     promotions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
     king_array: List[int],
     en_passant_target: str,
-) -> Tuple[List[Optional[int]], int, int]:
-    array: List[Optional[int]] = [None] * 32
+) -> Tuple[List[int], int, int]:
+    array: List[Optional[int]] = [None] * 16
     en_passant_piece = None
 
     # NEXT: Simplify logic to enable generation for both sides.
@@ -56,7 +56,7 @@ def convert_to_pawn_positions(
         en_passant_insertions = en_passant.convert_en_passant_position(
             en_passant_position, en_passant_piece, king_array
         )
-        array[en_passant_insertions[0][0]] = en_passant_insertions[0][1]
+        array[en_passant_insertions[0][0] - 16] = en_passant_insertions[0][1]
 
     promotion_map = {
         "q": "1",
@@ -120,8 +120,8 @@ def convert_to_pawn_positions(
     )
 
     white_pawn_index, black_pawn_index = (
-        common.PIECES.index("P"),
-        common.PIECES.index("p"),
+        common.PIECES.index("P") - 16,
+        common.PIECES.index("p") - 16,
     )
 
     while white_pawn_positions:
@@ -147,80 +147,83 @@ def convert_to_pawn_positions(
         len(positions_by_piece.get("p", [])),
     )
 
-    return array, white_lookup, black_lookup
+    return [item for item in array if item is not None], white_lookup, black_lookup
 
 
-def convert_positions(
+def set_non_pawn_positions(
     positions_by_piece: DefaultDict[str, List[Tuple[int, str]]],
     castling_availability: str = "-",
     en_passant_target: str = "-",
-) -> Tuple[List[Optional[int]], int, int]:
-    array: List[Optional[int]] = [None] * 32
-
+) -> Tuple[List[int], DefaultDict[str, List[Tuple[int, str]]]]:
+    array: List[Optional[int]] = [None] * 16
     promotions_by_piece: DefaultDict[
         str, List[Tuple[int, str]]
     ] = collections.defaultdict(list)
 
-    assert "K" in positions_by_piece and "k" in positions_by_piece
-    white_king_array, white_king_promotions = bitpacker.set_piece_position(
-        1, positions_by_piece["K"], None
-    )
-    black_king_array, black_king_promotions = bitpacker.set_piece_position(
-        1, positions_by_piece["k"], None
-    )
-
-    array[0] = white_king_array[0]
-    array[1] = black_king_array[0]
-    assert len(white_king_promotions) == 0 and len(black_king_promotions) == 0
-
-    # NEXT: Isolate changes to one piece at a time and merge at the end.
-    for piece in ["Q", "q", "R", "r", "B", "b", "N", "n"]:
-        index = common.PIECES.index(piece)
-        positions = positions_by_piece.get(piece, [])
-
-        is_queen = piece.lower() == "q"
-        is_white_piece = piece.isupper()
-
-        individual_array, promotions = bitpacker.set_piece_position(
-            1 if is_queen else 2, positions, array[int(is_white_piece)]
+    # Check king as always present.
+    for i, piece in enumerate("Kk"):
+        assert piece in positions_by_piece
+        king_array, king_promotions = bitpacker.set_piece_position(
+            1, positions_by_piece[piece], None
         )
 
-        for i, position in enumerate(individual_array):
-            array[index + i] = position
+        array[i] = king_array[0]
+        assert len(king_promotions) == 0
+
+    # Check rook for castling availability.
+    rook_arrays: List[List[int]] = []
+
+    for i, piece in enumerate("Rr"):
+        rook_array, rook_positions = castling.parse_castling_availability(
+            castling_availability,
+            positions_by_piece.get(piece, []),
+            array[:2],
+            not bool(i),
+        )
+
+        positions_by_piece[piece] = rook_positions
+        rook_arrays.append(rook_array)
+
+    for i, piece in enumerate("QqRrBbNn"):
+        positions = positions_by_piece.get(piece, [])
+        input_array = None
+
+        if piece in "Rr":
+            input_array = rook_arrays["Rr".index(piece)]
+
+        is_queen = piece.lower() == "q"
+        is_white = i % 2 == 0
+
+        output_array, promotions = bitpacker.set_piece_position(
+            1 if is_queen else 2, positions, array[int(is_white)], input_array
+        )
+
+        for j, position in enumerate(output_array):
+            array[common.PIECES.index(piece) + j] = position
 
         promotions_by_piece[piece] = promotions
 
-    assert array[0] is not None and array[1] is not None
-    non_optional_king_array: List[int] = [array[0], array[1]]
+    return [item for item in array if item is not None], promotions_by_piece
 
-    # TODO: Fix substitution when require ordered rook positions.
-    castling_ability_insertions = castling.convert_castling_availability(
-        castling_availability, non_optional_king_array
+
+def convert(board: chess.Board) -> Tuple[List[int], int, int]:
+    positions_by_piece = convert_board_to_positions(board)
+
+    board_details = board.fen().split(" ")[1:]
+    castling_availability = board_details[1]
+    en_passant_target = board_details[2]
+
+    non_pawn_array, promotions_by_piece = set_non_pawn_positions(
+        positions_by_piece, castling_availability, en_passant_target
     )
-
-    for insertion in castling_ability_insertions:
-        array[insertion[0]] = insertion[1]
-
-    pawn_array, white_lookup, black_lookup = convert_to_pawn_positions(
+    pawn_array, white_lookup, black_lookup = set_pawn_positions(
         positions_by_piece,
         promotions_by_piece,
-        non_optional_king_array,
+        [item for item in non_pawn_array[:2] if item is not None],
         en_passant_target,
     )
 
-    return array[:16] + pawn_array[16:], white_lookup, black_lookup
-
-
-def convert(board: chess.Board) -> Tuple[List[Optional[int]], int, int]:
-    positions_by_piece = convert_board_to_positions(board)
-
-    board_details = board.fen().split(" ")
-    castling_availability = board_details[2]
-    en_passant_target = board_details[3]
-
-    return convert_positions(
-        positions_by_piece, castling_availability, en_passant_target
-    )
+    return non_pawn_array + pawn_array, white_lookup, black_lookup
 
 
 def expose_board(board: chess.Board) -> None:

@@ -1,25 +1,28 @@
-from typing import Dict, List, Tuple
-
-import common
+from typing import Dict, List, Optional, Tuple
 
 
-def convert_castling_availability(
-    castling_availability: str, king_array: List[int]
-) -> List[Tuple[int, int]]:
-    if castling_availability == "-":
-        return []
+def parse_castling_availability(
+    castling_availability: str,
+    positions: List[Tuple[int, str]],
+    king_array: List[int],
+    is_white_rook: bool,
+) -> Tuple[List[Optional[int]], List[Tuple[int, str]]]:
+    array: List[Optional[int]] = [None] * 2
 
-    rook_index: Dict[str, int] = {
-        "q": common.PIECES.index("r") + 1,
-        "k": common.PIECES.index("r"),
-        "Q": common.PIECES.index("R") + 1,
-        "K": common.PIECES.index("R"),
+    starting_position_by_rook: Dict[str, Tuple[int, str]] = {
+        "q": (56, "a8"),
+        "k": (63, "h8"),
+        "Q": (0, "a1"),
+        "K": (7, "h1"),
     }
 
-    insertions: List[Tuple[int, int]] = []
+    for rook in castling_availability:
+        if is_white_rook and rook.isupper():
+            array["QK".index(rook)] = king_array[0]
+            positions.remove(starting_position_by_rook[rook])
 
-    for piece in castling_availability:
-        is_black_piece = piece.islower()
-        insertions.append((rook_index[piece], king_array[int(is_black_piece)]))
+        elif not is_white_rook and rook.islower():
+            array["qk".index(rook)] = king_array[1]
+            positions.remove(starting_position_by_rook[rook])
 
-    return insertions
+    return array, positions
