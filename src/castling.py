@@ -7,6 +7,12 @@ def parse_castling_availability(
     king_array: List[int],
     is_white: bool,
 ) -> Tuple[List[Optional[int]], List[Tuple[int, str]]]:
+    """
+    Fills in own king position values for an individual rook when castling is available.
+
+    If no input array provided, an array of size 2 will be initialized. Position values filled in
+    will be removed from the list of positions.
+    """
     array: List[Optional[int]] = [None] * 2
 
     starting_position_by_rook: Dict[str, Tuple[int, str]] = {
