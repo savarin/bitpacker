@@ -9,6 +9,12 @@ def parse_en_passant_target(
     king_array: List[int],
     is_white: bool,
 ) -> Tuple[List[Optional[int]], List[Tuple[int, str]]]:
+    """
+    Fills in own king position values for an individual pawn when en passant is available.
+
+    If no input array provided, an array of size 2 will be initialized. Position values filled in
+    will be removed from the list of positions.
+    """
     array: List[Optional[int]] = [None] * 8
 
     if en_passant_target == "-":
