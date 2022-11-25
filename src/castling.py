@@ -10,8 +10,7 @@ def parse_castling_availability(
     """
     Fills in own king position values for an individual rook when castling is available.
 
-    If no input array provided, an array of size 2 will be initialized. Position values filled in
-    will be removed from the list of positions.
+    Position values filled in will be removed from the list of positions.
     """
     array: List[Optional[int]] = [None] * 2
 
