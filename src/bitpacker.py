@@ -179,7 +179,10 @@ def set_pawn_positions(
         is_white = i % 2 == 0
 
         input_array, positions = en_passant.parse_en_passant_target(
-            en_passant_target, positions_by_piece.get(piece, []), king_array, is_white,
+            en_passant_target,
+            positions_by_piece.get(piece, []),
+            king_array[i],
+            is_white,
         )
 
         positions, promotions_key = reorder_pawn_positions(
@@ -187,7 +190,7 @@ def set_pawn_positions(
         )
 
         output_array, _ = set_piece_position(
-            len(positions), positions, king_array[int(is_white)], input_array
+            len(positions), positions, king_array[1 - i], input_array
         )
 
         array += output_array

@@ -6,7 +6,7 @@ import common
 def parse_en_passant_target(
     en_passant_target: str,
     positions: List[Tuple[int, str]],
-    king_array: List[int],
+    king_position: List[int],
     is_white: bool,
 ) -> Tuple[List[Optional[int]], List[Tuple[int, str]]]:
     """
@@ -39,11 +39,11 @@ def parse_en_passant_target(
     }
 
     if is_white and en_passant_target[1] == "3":
-        array[common.FILES.index(en_passant_target[0])] = king_array[0]
+        array[common.FILES.index(en_passant_target[0])] = king_position
         positions.remove(current_position_by_pawn[en_passant_target])
 
     elif not is_white and en_passant_target[1] == "6":
-        array[common.FILES.index(en_passant_target[0])] = king_array[1]
+        array[common.FILES.index(en_passant_target[0])] = king_position
         positions.remove(current_position_by_pawn[en_passant_target])
 
     return array, positions
