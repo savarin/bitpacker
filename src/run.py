@@ -11,6 +11,9 @@ import common
 def convert_board_to_positions(
     board: chess.Board,
 ) -> DefaultDict[str, List[Tuple[int, str]]]:
+    """
+    Converts chess.Board string object into a dictionary of positions by piece.
+    """
     # TODO: Convert FEN notation to positions.
     positions_by_piece: DefaultDict[
         str, List[Tuple[int, str]]
@@ -30,6 +33,9 @@ def convert_board_to_positions(
 
 
 def convert(board: chess.Board) -> Tuple[List[int], List[int]]:
+    """
+    Convertrs a dictionary of positions by piece into array of positions and promotions enumeration.
+    """
     positions_by_piece = convert_board_to_positions(board)
 
     board_details = board.fen().split(" ")[1:]
@@ -50,6 +56,9 @@ def convert(board: chess.Board) -> Tuple[List[int], List[int]]:
 
 
 def expose_board(board: chess.Board, is_binary: bool) -> None:
+    """
+    Print board, array of positions and promotions enumeration.
+    """
     array, promotions_enumeration = convert(board)
 
     if is_binary:
