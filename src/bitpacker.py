@@ -89,7 +89,7 @@ def set_non_pawn_positions(
         rook_array, rook_positions = castling.parse_castling_availability(
             castling_availability,
             positions_by_piece.get(piece, []),
-            array[:2],
+            array[i],
             not bool(i),
         )
 
