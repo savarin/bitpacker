@@ -38,3 +38,58 @@ def test_set_piece_position() -> None:
     )
     assert array == [0, 7]
     assert promotions == [(63, "h8")]
+
+
+def test_set_pawn_positions() -> None:
+    # White pawns at starting points.
+    positions, promotions_key = bitpacker.reorder_pawn_positions(
+        [
+            (8, "a2"),
+            (9, "b2"),
+            (10, "c2"),
+            (11, "d2"),
+            (12, "e2"),
+            (13, "f2"),
+            (14, "g2"),
+            (15, "h2"),
+        ],
+        {},
+        True,
+    )
+    assert positions == [
+        (8, "a2"),
+        (9, "b2"),
+        (10, "c2"),
+        (11, "d2"),
+        (12, "e2"),
+        (13, "f2"),
+        (14, "g2"),
+        (15, "h2"),
+    ]
+    assert promotions_key is None
+
+    # White pawns with single promotion.
+    positions, promotions_key = bitpacker.reorder_pawn_positions(
+        [
+            (8, "a2"),
+            (9, "b2"),
+            (10, "c2"),
+            (12, "e2"),
+            (13, "f2"),
+            (14, "g2"),
+            (15, "h2"),
+        ],
+        {"R": [(63, "h8")]},
+        True,
+    )
+    assert positions == [
+        (8, "a2"),
+        (9, "b2"),
+        (10, "c2"),
+        (12, "e2"),
+        (13, "f2"),
+        (14, "g2"),
+        (15, "h2"),
+        (63, "h8"),
+    ]
+    assert promotions_key == "00000003"
